@@ -88,8 +88,9 @@ public class Train {
 
     /**
      * Advances the train to the next station when MOVING.
-     * Subclasses override this to implement specific stop behavior
-     * (e.g., express trains skipping intermediate stations).
+     * All trains move one station per simulation tick.
+     * Subclasses define stop behavior via stopsAtStation() method,
+     * which determines where passengers can board or alight.
      */
     public void updatePosition() {
         if (status == TrainStatus.MOVING) {
