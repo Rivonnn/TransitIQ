@@ -1,6 +1,7 @@
-package com.transitiq;
-
+import model.Station;
+import model.Train;
 import util.SeedData;
+
 import java.util.List;
 
 public class Main {

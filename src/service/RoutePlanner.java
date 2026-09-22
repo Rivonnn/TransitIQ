@@ -23,7 +23,7 @@ public class RoutePlanner {
     }
 
     // Function to find route, returns List<Station>, throws NoRouteFoundException.
-    public List<Station> findRoute(Station source, Station destination, Station lineOrder)
+    public List<Station> findRoute(Station source, Station destination, List<Station> lineOrder)
         throws NoRouteFoundException {
 
         // Using 'indexOf' to find the index within the specified list.

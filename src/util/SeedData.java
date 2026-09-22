@@ -8,8 +8,7 @@ import java.util.List;
 public class SeedData {
     // List made out of 'Station' objects, loading stations for later use.
     public static List<Station> loadStations() {
-        return new ArrayList<>(); {
-        }
+        return new ArrayList<>();
     }
 
     // List made out of 'Train' objects, loading trains for later use.
