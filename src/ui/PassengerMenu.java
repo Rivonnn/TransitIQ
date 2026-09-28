@@ -42,7 +42,7 @@ public class PassengerMenu {
             System.out.println("3. Exit\n");
             System.out.print("Choose an option: ");
 
-            String choice = scanner.nextLine();
+            String choice = scanner.nextLine().trim();
 
             switch (choice) {
                 case "1":
@@ -61,39 +61,23 @@ public class PassengerMenu {
         }
     }
 
-    // searchRoute: Validates both stations,
+    // searchRoute: Validates stations and delegates direct/transfer routing to RoutePlanner
     private void searchRoute() {
-        // Get source and destination as Strings.
         System.out.print("Enter source station: ");
-        String sourceName = scanner.nextLine();
+        String sourceName = scanner.nextLine().trim();
         System.out.print("Enter destination station: ");
-        String destName = scanner.nextLine();
+        String destName = scanner.nextLine().trim();
 
-        // Check validity, return null or 'Station' object.
         Station source = Validator.findStationByName(sourceName, stations);
         Station destination = Validator.findStationByName(destName, stations);
 
-        // If either is returned null, report it and return.
         if (source == null || destination == null) {
             System.out.println("One or both stations not found. Please check spelling.");
             return;
         }
 
-        // Valid stations need to be checked if they hold a common line.
-        // Create 'Line' object.
-        Line commonLine = routePlanner.findCommonLine(source, destination);
-
-        // If Line isn't present, null is given, report it and return.
-        if (commonLine == null) {
-            System.out.println("No direct route found (transfers not supported yet).");
-            return;
-        }
-
-        // Valid stations and valid common line. Use try catch to check for route.
-        // Use findRoute, and try to print route.
-        // Catch 'NoRouteFoundException' if found, and display message for it.
         try {
-            List<Station> route = routePlanner.findRoute(source, destination, lineOrders.get(commonLine));
+            List<Station> route = routePlanner.findRouteWithTransfers(source, destination, lineOrders, stations);
             printRoute(route);
         } catch (NoRouteFoundException e) {
             System.out.println(e.getMessage());
@@ -101,15 +85,10 @@ public class PassengerMenu {
     }
 
     private void checkFare() {
-        /* Get source and destination, run through validator.
-           Check for null for both of them and display message for it.
-           Take the Stations and check if there is common route.
-           Check for null Line and display message for it.
-        */
         System.out.print("Enter source station: ");
-        String sourceName = scanner.nextLine();
+        String sourceName = scanner.nextLine().trim();
         System.out.print("Enter destination station: ");
-        String destName = scanner.nextLine();
+        String destName = scanner.nextLine().trim();
 
         Station source = Validator.findStationByName(sourceName, stations);
         Station destination = Validator.findStationByName(destName, stations);
@@ -119,27 +98,17 @@ public class PassengerMenu {
             return;
         }
 
-        Line commonLine = routePlanner.findCommonLine(source, destination);
-        if (commonLine == null) {
-            System.out.println("No direct route found (transfers not supported yet).");
-            return;
-        }
-
-        // Get Train type
         System.out.print("Train type (local/express): ");
-        String type = scanner.nextLine();
+        String type = scanner.nextLine().trim();
         Train train = findTrainByType(type);
 
-        // Check for null
         if (train == null) {
             System.out.println("No train of that type available.");
             return;
         }
 
-        // Try to find route, use that route to calculate fare.
-        // catch for 'NoRouteFoundException'.
         try {
-            List<Station> route = routePlanner.findRoute(source, destination, lineOrders.get(commonLine));
+            List<Station> route = routePlanner.findRouteWithTransfers(source, destination, lineOrders, stations);
             double fare = fareCalculator.calculateFare(route, train);
             System.out.println("Fare: ₹" + fare);
         } catch (NoRouteFoundException e) {
