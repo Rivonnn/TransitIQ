@@ -44,40 +44,26 @@ src/
 
 ## Running
 
-### Prerequisites
-- Java Development Kit (JDK) 8 or higher
-- Terminal/Command Prompt
+### From IntelliJ IDEA
 
-### Compilation and Execution
+1. **Open the project**
+   - File → Open → Select the `TransitIQ` project directory
 
-**From the project root directory:**
+2. **Configure JDK (if needed)**
+   - File → Project Structure → Project → Set Project SDK to JDK 8 or higher
 
-```bash
-# Compile all Java files
-javac -d bin src/**/*.java
+3. **Run the application**
+   - Right-click on `src/Main.java`
+   - Select "Run 'Main.main()'"
+   - Or press `Shift + F10` with Main.java open
 
-# Run the application
-java -cp bin Main
-```
-
-**Alternative (single command):**
-
-```bash
-# Compile and run in one step
-javac -d bin src/**/*.java && java -cp bin Main
-```
-
-**For Windows (Command Prompt):**
-```cmd
-javac -d bin src\**\*.java
-java -cp bin Main
-```
-
-**For Windows (PowerShell):**
-```powershell
-javac -d bin src/**/*.java
-java -cp bin Main
-```
+4. **Optional: Create a run configuration**
+   - Run → Edit Configurations
+   - Click "+" → Application
+   - Name: "TransitIQ"
+   - Main class: "Main"
+   - Working directory: `$PROJECT_DIR$`
+   - Save and run using the configuration
 
 The application starts with a main menu where you can choose between:
 1. **Passenger Menu** - Search routes and check fares
