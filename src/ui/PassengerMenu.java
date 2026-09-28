@@ -110,7 +110,7 @@ public class PassengerMenu {
         try {
             List<Station> route = routePlanner.findRouteWithTransfers(source, destination, lineOrders, stations);
             double fare = fareCalculator.calculateFare(route, train);
-            System.out.println("Fare: " + fare);
+            System.out.println("Fare: ₹" + fare);
         } catch (NoRouteFoundException e) {
             System.out.println(e.getMessage());
         }
