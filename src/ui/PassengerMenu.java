@@ -141,7 +141,7 @@ public class PassengerMenu {
         try {
             List<Station> route = routePlanner.findRoute(source, destination, lineOrders.get(commonLine));
             double fare = fareCalculator.calculateFare(route, train);
-            System.out.println("Fare: " + fare);
+            System.out.println("Fare: ₹" + fare);
         } catch (NoRouteFoundException e) {
             System.out.println(e.getMessage());
         }
@@ -160,12 +160,16 @@ public class PassengerMenu {
         return null;
     }
 
-    // Iteration to print route.
+    // Iteration to print route with newlines
     private void printRoute(List<Station> route) {
-        System.out.print("Route: ");
-        for (Station s : route) {
-            System.out.print(s.getName() + " ");
+        System.out.println("Route:");
+        for (int i = 0; i < route.size(); i++) {
+            System.out.print("  " + (i + 1) + ". " + route.get(i).getName());
+            if (i < route.size() - 1) {
+                System.out.println(" ↓");
+            } else {
+                System.out.println();
+            }
         }
-        System.out.println();
     }
 }
