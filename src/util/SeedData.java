@@ -18,18 +18,18 @@ public class SeedData {
     public static List<Station> loadStations() {
         List<Station> stations = new ArrayList<>();
 
-        // Create shared interchange station instances
+        // Create shared interchange station instances first
         Station csmt = new Station("CSMT", Arrays.asList(Line.CENTRAL, Line.HARBOUR));
         Station dadar = new Station("Dadar", Arrays.asList(Line.WESTERN, Line.CENTRAL));
         Station kurla = new Station("Kurla", Arrays.asList(Line.CENTRAL, Line.HARBOUR));
 
-        // 1. WESTERN LINE (South to North)
+        // 1. WESTERN LINE (South to North: Churchgate to Vasai Road)
         stations.add(new Station("Churchgate", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Marine Lines", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Charni Road", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Grant Road", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Mumbai Central", Arrays.asList(Line.WESTERN)));
-        stations.add(dadar);
+        stations.add(dadar); // Dadar connects Western & Central
         stations.add(new Station("Bandra", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Andheri", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Borivali", Arrays.asList(Line.WESTERN)));
@@ -39,14 +39,14 @@ public class SeedData {
         stations.add(new Station("Naigaon", Arrays.asList(Line.WESTERN)));
         stations.add(new Station("Vasai Road", Arrays.asList(Line.WESTERN)));
 
-        // 2. CENTRAL LINE STATIONS (Ensuring South-to-North sequence: CSMT -> Dadar -> Kurla -> Thane)
-        // CSMT is placed at the front of Central Line list
+        // 2. CENTRAL LINE STATIONS (South to North: CSMT -> Dadar -> Kurla -> Thane)
+        // CSMT added before Dadar for Central sequence
         stations.add(0, csmt);
-        stations.add(kurla);
+        stations.add(kurla); // Kurla connects Central & Harbour
         stations.add(new Station("Thane", Arrays.asList(Line.CENTRAL)));
 
-        // 3. HARBOUR LINE STATIONS (Vadala Road sits between CSMT and Kurla)
-        // Insert Vadala Road right after CSMT (index 1)
+        // 3. HARBOUR LINE STATIONS (South to North: CSMT -> Vadala Road -> Kurla -> Panvel)
+        // Vadala Road sits between CSMT and Kurla
         stations.add(1, new Station("Vadala Road", Arrays.asList(Line.HARBOUR)));
         stations.add(new Station("Chembur", Arrays.asList(Line.HARBOUR)));
         stations.add(new Station("Vashi", Arrays.asList(Line.HARBOUR)));
@@ -57,7 +57,7 @@ public class SeedData {
         return stations;
     }
 
-    // Fully automated and dynamic map generator using enum metadata
+    // Dynamic line order builder using station line enum metadata
     public static Map<Line, List<Station>> loadLineOrders(List<Station> allStations) {
         Map<Line, List<Station>> lineOrders = new HashMap<>();
 

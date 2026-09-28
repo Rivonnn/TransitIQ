@@ -1,94 +1,102 @@
 package service;
 
-import model.Station;
 import model.Line;
+import model.Station;
 import exceptions.NoRouteFoundException;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 public class RoutePlanner {
 
-    // The stations mentioned must be in the same line before we find the route.
+    // Finds a direct common line between two stations if one exists
     public Line findCommonLine(Station source, Station destination) {
-
-        // Iterate through the source's line list and check if the destination's line list matches.
         for (Line line : source.getLines()) {
             if (destination.getLines().contains(line)) {
                 return line;
             }
         }
-
         return null;
     }
 
-    // Function to find route, returns List<Station>, throws NoRouteFoundException.
+    // Finds a direct segment between two stations on a specific line order
     public List<Station> findRoute(Station source, Station destination, List<Station> lineOrder)
             throws NoRouteFoundException {
 
-        // Using 'indexOf' to find the index within the specified list.
         int fromIndex = lineOrder.indexOf(source);
         int toIndex = lineOrder.indexOf(destination);
 
-        // If index is not found, it is assigned -1, catch it and throw error message.
         if (fromIndex == -1 || toIndex == -1) {
             throw new NoRouteFoundException(
                     "No route found from " + source.getName() + " to " + destination.getName()
             );
         }
 
-        /* Stations are in a List with indexes 1, 2, 3, etc.
-        If the path is straightforward,
-            example; [A, B, C] is list. A -> C is route. A is index 1, C is index 3,
-            1 < 3 is true, route is straight to trace.
-        If path is reverse of the list present.
-            example; Same list, but route is C -> A, 3 < 1 is false,
-            return a reversed list which matches the path direction, [C, B, A].
-        */
         if (fromIndex <= toIndex) {
             return new ArrayList<>(lineOrder.subList(fromIndex, toIndex + 1));
         } else {
             List<Station> reversed = new ArrayList<>(lineOrder.subList(toIndex, fromIndex + 1));
-            java.util.Collections.reverse(reversed);
+            Collections.reverse(reversed);
             return reversed;
         }
-
     }
 
-    // Finds direct routes or transfer routes using shared interchange stations.
+    // Finds the optimal route across direct, single-transfer, or multi-transfer paths
     public List<Station> findRouteWithTransfers(Station source, Station destination,
                                                 Map<Line, List<Station>> lineOrders,
                                                 List<Station> allStations) throws NoRouteFoundException {
 
-        // 1. Check for a direct route on a common line first.
+        // 1. Direct route check
         Line commonLine = findCommonLine(source, destination);
         if (commonLine != null && lineOrders.containsKey(commonLine)) {
             return findRoute(source, destination, lineOrders.get(commonLine));
         }
 
-        // 2. If no direct line exists, look for an interchange station connecting source line and destination line.
-        for (Line sourceLine : source.getLines()) {
-            List<Station> sourceLineStations = lineOrders.get(sourceLine);
-            if (sourceLineStations == null) continue;
+        // 2. Multi-line search using BFS across stations and interchange connections
+        Queue<List<Station>> pathQueue = new LinkedList<>();
+        Set<Station> visitedStations = new HashSet<>();
 
-            for (Line destLine : destination.getLines()) {
-                List<Station> destLineStations = lineOrders.get(destLine);
-                if (destLineStations == null) continue;
+        List<Station> initialPath = new ArrayList<>();
+        initialPath.add(source);
+        pathQueue.add(initialPath);
+        visitedStations.add(source);
 
-                // Iterate through all stations to find an interchange stop belonging to both lines.
-                for (Station interchange : allStations) {
-                    if (interchange.getLines().contains(sourceLine) && interchange.getLines().contains(destLine)) {
-                        try {
-                            List<Station> leg1 = findRoute(source, interchange, sourceLineStations);
-                            List<Station> leg2 = findRoute(interchange, destination, destLineStations);
+        while (!pathQueue.isEmpty()) {
+            List<Station> currentPath = pathQueue.poll();
+            Station currentStation = currentPath.get(currentPath.size() - 1);
 
-                            // Merge leg 1 and leg 2 while dropping duplicate interchange station.
-                            List<Station> fullRoute = new ArrayList<>(leg1);
-                            fullRoute.addAll(leg2.subList(1, leg2.size()));
-                            return fullRoute;
-                        } catch (NoRouteFoundException ignored) {
-                            // Continue searching if this interchange cannot complete the route.
+            // Explore adjacent stations connected on all lines passing through currentStation
+            for (Line line : currentStation.getLines()) {
+                List<Station> lineStations = lineOrders.get(line);
+                if (lineStations == null) continue;
+
+                int currentIndex = lineStations.indexOf(currentStation);
+                if (currentIndex == -1) continue;
+
+                // Adjacent stations on this line (previous and next)
+                int[] neighborIndices = {currentIndex - 1, currentIndex + 1};
+
+                for (int neighborIndex : neighborIndices) {
+                    if (neighborIndex >= 0 && neighborIndex < lineStations.size()) {
+                        Station neighbor = lineStations.get(neighborIndex);
+
+                        if (!visitedStations.contains(neighbor)) {
+                            List<Station> newPath = new ArrayList<>(currentPath);
+                            newPath.add(neighbor);
+
+                            if (neighbor.equals(destination)) {
+                                return newPath; // Return shortest station-hop path found
+                            }
+
+                            visitedStations.add(neighbor);
+                            pathQueue.add(newPath);
                         }
                     }
                 }
