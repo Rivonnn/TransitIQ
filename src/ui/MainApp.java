@@ -13,6 +13,7 @@ import model.Line;
 import model.Station;
 import model.Train;
 import service.PassengerService;
+import ui.Passenger.PassengerScreen;
 import util.SeedData;
 
 import java.util.List;

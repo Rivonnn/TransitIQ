@@ -1,10 +1,8 @@
-package ui;
+package ui.Passenger;
 
 import exceptions.NoRouteFoundException;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
@@ -15,15 +13,22 @@ import service.PassengerService;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PassengerScreen {
+public class RoutesAndFare extends Tab {
 
-    private final BorderPane root;
+    public RoutesAndFare(PassengerService service) {
+        super("Route & Fare");
+        setClosable(false);
 
-    public PassengerScreen(PassengerService service, Runnable onBack) {
-        // Dropdowns show station names instead of the object's default text.
         StringConverter<Station> nameConverter = new StringConverter<Station>() {
-            @Override public String toString(Station s) { return s == null ? "" : s.getName(); }
-            @Override public Station fromString(String text) { return null; }
+            @Override
+            public String toString(Station s) {
+                return s == null ? "" : s.getName();
+            }
+
+            @Override
+            public Station fromString(String text) {
+                return null;
+            }
         };
 
         ComboBox<Station> source = new ComboBox<>();
@@ -64,7 +69,8 @@ public class PassengerScreen {
 
             try {
                 List<Station> route = service.findRoute(src, dst);
-                String path = route.stream().map(Station::getName)
+                String path = route.stream()
+                        .map(Station::getName)
                         .collect(Collectors.joining(" → "));
                 routeLabel.setText("Route: " + path + " (" + (route.size() - 1) + " stops)");
 
@@ -80,43 +86,22 @@ public class PassengerScreen {
             }
         });
 
-        VBox sourceWidget = new VBox(
-                new Label("From"), source
-        );
+        VBox sourceWidget = new VBox(new Label("From"), source);
+        VBox destinationWidget = new VBox(new Label("To"), destination);
+        VBox trainTypeWidget = new VBox(new Label("Train Type"), trainType);
 
-        VBox destinationWidget = new VBox(
-                new Label("To"), destination
-        );
-
-        VBox trainTypeWidget = new VBox(
-                new Label("Train Type"), trainType
-        );
-
-        HBox fromTo = new HBox(4,
-                sourceWidget,
-                destinationWidget
-        );
+        HBox fromTo = new HBox(4, sourceWidget, destinationWidget);
 
         VBox form = new VBox(10,
                 fromTo,
                 trainTypeWidget,
-                search, routeLabel, fareLabel, errorLabel);
+                search,
+                routeLabel,
+                fareLabel,
+                errorLabel
+        );
         form.setPadding(new Insets(20));
 
-        Tab routeTab = new Tab("Route & Fare", form);
-        routeTab.setClosable(false);
-        TabPane tabs = new TabPane(routeTab);   // Live Status tab goes here later
-
-        Button back = new Button("Back");
-        back.setOnAction(e -> onBack.run());
-        HBox top = new HBox(back);
-        top.setPadding(new Insets(10));
-
-        root = new BorderPane(tabs);
-        root.setTop(top);
-    }
-
-    public Parent getRoot() {
-        return root;
+        setContent(form);
     }
 }
