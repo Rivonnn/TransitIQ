@@ -2,6 +2,7 @@
   <configuration default="false" name="TransitIQ" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="Main" />
     <module name="TransitIQ" />
+    <option name="VM_PARAMETERS" value="--enable-native-access=javafx.graphics" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
     <method v="2">
       <option name="Make" enabled="true" />

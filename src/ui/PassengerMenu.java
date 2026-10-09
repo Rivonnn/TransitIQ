@@ -3,6 +3,7 @@ package ui;
 import model.Station;
 import model.Train;
 import model.Line;
+import service.PassengerService;
 import service.RoutePlanner;
 import service.FareCalculator;
 import util.Validator;
@@ -14,21 +15,14 @@ import java.util.Scanner;
 
 public class PassengerMenu {
 
-    private List<Station> stations;
-    private List<Train> trains;
-    private Map<Line, List<Station>> lineOrders;
-    private RoutePlanner routePlanner;
-    private FareCalculator fareCalculator;
-    private Scanner scanner;
+    private final List<Station> stations;
+    private final PassengerService service;
+    private final Scanner scanner;
 
-    // Constructor
     public PassengerMenu(List<Station> stations, List<Train> trains,
                          Map<Line, List<Station>> lineOrders) {
         this.stations = stations;
-        this.trains = trains;
-        this.lineOrders = lineOrders;
-        this.routePlanner = new RoutePlanner();
-        this.fareCalculator = new FareCalculator();
+        this.service = new PassengerService(stations, trains, lineOrders);
         this.scanner = new Scanner(System.in);
     }
 
@@ -77,7 +71,7 @@ public class PassengerMenu {
         }
 
         try {
-            List<Station> route = routePlanner.findRouteWithTransfers(source, destination, lineOrders, stations);
+            List<Station> route = service.findRoute(source, destination);
             printRoute(route);
         } catch (NoRouteFoundException e) {
             System.out.println(e.getMessage());
@@ -100,7 +94,7 @@ public class PassengerMenu {
 
         System.out.print("Train type (local/express): ");
         String type = scanner.nextLine().trim();
-        Train train = findTrainByType(type);
+        Train train = service.findTrainByType(type);
 
         if (train == null) {
             System.out.println("No train of that type available.");
@@ -108,25 +102,12 @@ public class PassengerMenu {
         }
 
         try {
-            List<Station> route = routePlanner.findRouteWithTransfers(source, destination, lineOrders, stations);
-            double fare = fareCalculator.calculateFare(route, train);
+            List<Station> route = service.findRoute(source, destination);
+            double fare = service.calculateFare(route, train); 
             System.out.println("Fare: ₹" + fare);
         } catch (NoRouteFoundException e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    // Check for Train type with string comparison and 'instanceof'.
-    private Train findTrainByType(String type) {
-        for (Train train : trains) {
-            if (type.equalsIgnoreCase("local") && train instanceof model.LocalTrain) {
-                return train;
-            }
-            if (type.equalsIgnoreCase("express") && train instanceof model.ExpressTrain) {
-                return train;
-            }
-        }
-        return null;
     }
 
     // Iteration to print route with newlines

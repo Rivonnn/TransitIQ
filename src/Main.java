@@ -1,7 +1,9 @@
+import javafx.application.Platform;
 import model.Line;
 import model.Station;
 import model.Train;
 import simulation.SimulationClock;
+import ui.MainApp;
 import ui.PassengerMenu;
 import ui.AdminMenu;
 import util.SeedData;
@@ -14,6 +16,8 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
+        MainApp.main(args);
+
         // 1. Load data
         List<Station> stations = SeedData.loadStations();
         List<Train> trains = SeedData.loadTrains();
