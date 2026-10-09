@@ -21,6 +21,7 @@ import java.util.Map;
 public class TrainMap extends Tab {
 
     // --- Heart of the Map system ---
+    // Sets up the main tab layout and attaches the rendered map canvas
     public TrainMap(PassengerService service) {
         super("Train Map");
         setClosable(false);
@@ -35,6 +36,7 @@ public class TrainMap extends Tab {
         setContent(layout);
     }
 
+    // Instantiates map data repository and delegates drawing nodes and connections to NetworkMapPane
     private Pane createMapPane() {
         TrainMapData mapData = new TrainMapData();
         NetworkMapPane mapPane = new NetworkMapPane();
@@ -56,7 +58,7 @@ public class TrainMap extends Tab {
     }
 
     // --- INNER DATA MODELS ---
-
+    // Records and enum defining station coordinates, connection endpoints, styling, and label positioning
     public enum LabelPosition {
         TOP, BOTTOM, LEFT, RIGHT
     }
@@ -74,7 +76,7 @@ public class TrainMap extends Tab {
     }
 
     // --- INNER DATA REPOSITORY ---
-
+    // Stores all station nodes and track connections to be drawn on the map
     private static class TrainMapData {
         private final List<MapNode> nodes = new ArrayList<>();
         private final List<MapConnection> connections = new ArrayList<>();
@@ -92,16 +94,8 @@ public class TrainMap extends Tab {
             addConnection("Not Bandra", "Not Church Gate", Color.CRIMSON);
         }
 
-        private void addNode(String name, double x, double y, Color color) {
-            nodes.add(new MapNode(name, x, y, color));
-        }
-
         private void addNode(String name, double x, double y, Color color, LabelPosition position) {
             nodes.add(new MapNode(name, x, y, color, position));
-        }
-
-        private void addConnection(String from, String to) {
-            connections.add(new MapConnection(from, to));
         }
 
         private void addConnection(String from, String to, Color color) {
@@ -113,7 +107,7 @@ public class TrainMap extends Tab {
     }
 
     // --- INNER CANVAS PANE ---
-
+    // Handles JavaFX shape rendering for station circles, aligned text labels, and connection lines
     private static class NetworkMapPane extends Pane {
         private final Pane tracksPane = new Pane();
         private final Pane nodesPane = new Pane();
@@ -124,6 +118,7 @@ public class TrainMap extends Tab {
             getChildren().addAll(tracksPane, nodesPane);
         }
 
+        // Helper to construct station node graphics (Circle + Text) and map their screen coordinates
         public void createNode(String stationName, double xPos, double yPos, Color nodeColor, LabelPosition position) {
             stationPositions.put(stationName, new Point2D(xPos, yPos));
 
@@ -158,6 +153,7 @@ public class TrainMap extends Tab {
             nodesPane.getChildren().addAll(circle, label);
         }
 
+        // Helper to construct connecting line graphics between stored station coordinates
         public void createConnection(String fromStation, String toStation, Color trackColor) {
             Point2D start = stationPositions.get(fromStation);
             Point2D end = stationPositions.get(toStation);
