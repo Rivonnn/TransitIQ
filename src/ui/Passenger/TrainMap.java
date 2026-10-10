@@ -11,18 +11,26 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import service.PassengerService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Map tab: draws the stations as dots and the tracks as lines.
+ * The layout is hardcoded on purpose. Where a station appears on screen is a
+ * display decision, so it lives here and not on the Station model.
+ * NOTES:
+ *  - All the station names along with their positioning is not done yet.
+ *    For now 4 stations and 4 connections are made just to display a base for the map.
+ */
 public class TrainMap extends Tab {
 
-    // --- Heart of the Map system ---
-    // Sets up the main tab layout and attaches the rendered map canvas
-    public TrainMap(PassengerService service) {
+    /**
+     * Builds the tab: a title above the map pane.
+     */
+    public TrainMap() {
         super("Train Map");
         setClosable(false);
 
@@ -36,7 +44,12 @@ public class TrainMap extends Tab {
         setContent(layout);
     }
 
-    // Instantiates map data repository and delegates drawing nodes and connections to NetworkMapPane
+    /**
+     * Builds the hardcoded map data, then draws it onto a new pane.
+     * Nodes are drawn before connections: createConnection looks up each station's
+     * position by name and silently skips a line whose end isn't registered yet.
+     * @return the pane with every node and connection drawn
+     */
     private Pane createMapPane() {
         TrainMapData mapData = new TrainMapData();
         NetworkMapPane mapPane = new NetworkMapPane();
@@ -57,71 +70,110 @@ public class TrainMap extends Tab {
         return mapPane;
     }
 
-    // --- INNER DATA MODELS ---
-    // Records and enum defining station coordinates, connection endpoints, styling, and label positioning
+    // Where a station's name sits relative to its dot.
     public enum LabelPosition {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
+    /**
+     * One station on the map.
+     * @param name station name
+     * @param x horizontal position on the pane
+     * @param y vertical position on the pane
+     * @param color color of the dot
+     * @param labelPosition where the name sits around the dot
+     */
     private record MapNode(String name, double x, double y, Color color, LabelPosition labelPosition) {
-        public MapNode(String name, double x, double y, Color color) {
-            this(name, x, y, color, LabelPosition.TOP);
+        // the dot is CRIMSON and the name sits above it (TOP).
+        public MapNode(String name, double x, double y) {
+            this(name, x, y, Color.CRIMSON, LabelPosition.TOP);
         }
     }
 
+    /**
+     * One track between two stations.
+     * @param fromStation name of the station where the line starts
+     * @param toStation name of the station where the line ends
+     * @param color color of the line
+     */
     private record MapConnection(String fromStation, String toStation, Color color) {
         public MapConnection(String fromStation, String toStation) {
             this(fromStation, toStation, Color.GRAY);
         }
     }
 
-    // --- INNER DATA REPOSITORY ---
-    // Stores all station nodes and track connections to be drawn on the map
+    /**
+     * Holds the hardcoded list of nodes and connections to draw.
+     * Placeholder data for now; replace with real station names later.
+     */
     private static class TrainMapData {
         private final List<MapNode> nodes = new ArrayList<>();
         private final List<MapConnection> connections = new ArrayList<>();
 
+        /** Adding nodes and connections when constructor runs. */
         public TrainMapData() {
-            // Add initial station list and track connections here
-            addNode("Not Church Gate", 0, 0, Color.CORAL, LabelPosition.TOP);
-            addNode("Not CSMT", 1200, 0, Color.AQUAMARINE, LabelPosition.TOP);
-            addNode("Not Here", 1200, 500, Color.GREEN, LabelPosition.BOTTOM);
-            addNode("Not Bandra", 0, 500, Color.CRIMSON, LabelPosition.BOTTOM);
 
-            addConnection("Not Church Gate", "Not CSMT", Color.CORAL);
-            addConnection("Not CSMT", "Not Here", Color.AQUAMARINE);
-            addConnection("Not Here", "Not Bandra", Color.GREEN);
-            addConnection("Not Bandra", "Not Church Gate", Color.CRIMSON);
+            addNode("Church Gate", 0, 0, Color.CORAL, LabelPosition.TOP);
+            addNode("CSMT", 1200, 0, Color.AQUAMARINE, LabelPosition.TOP);
+            addNode("Panvel", 1200, 500, Color.GREEN, LabelPosition.BOTTOM);
+            addNode("Bandra", 0, 500, Color.CRIMSON, LabelPosition.BOTTOM);
+
+            addConnection("Church Gate", "CSMT", Color.CORAL);
+            addConnection("CSMT", "Panvel", Color.AQUAMARINE);
+            addConnection("Panvel", "Bandra", Color.GREEN);
+            addConnection("Bandra", "Church Gate", Color.CRIMSON);
         }
 
+        /** Adds a MapNode with the given values to the list. */
         private void addNode(String name, double x, double y, Color color, LabelPosition position) {
             nodes.add(new MapNode(name, x, y, color, position));
         }
 
+        /** Adds a MapConnection with the given values to the list. */
         private void addConnection(String from, String to, Color color) {
             connections.add(new MapConnection(from, to, color));
         }
 
+        // Getters used by createMapPane to read the data.
         public List<MapNode> getNodes() { return nodes; }
         public List<MapConnection> getConnections() { return connections; }
     }
 
-    // --- INNER CANVAS PANE ---
-    // Handles JavaFX shape rendering for station circles, aligned text labels, and connection lines
+    /**
+     * A Pane that draws the map: stations (a dot plus a name) and tracks (lines).
+     * Children of a Pane draw in the order they were added, with later ones on top.
+     * That's why the tracks live in their own layer, added first, so the station
+     * dots always sit above the lines.
+     */
     private static class NetworkMapPane extends Pane {
+
+        // Two layers inside this pane: lines at the back, stations in front.
         private final Pane tracksPane = new Pane();
         private final Pane nodesPane = new Pane();
+
+        // Remembers each station's position by name. createConnection uses it to find
+        // the two ends of a line, which is why every node must be created before the
+        // connections that use it.
         private final Map<String, Point2D> stationPositions = new HashMap<>();
 
+        /** Adds the two layers in drawing order: tracks first (back), nodes second (front). */
         public NetworkMapPane() {
-            // Guarantee lines stay behind nodes
             getChildren().addAll(tracksPane, nodesPane);
         }
 
-        // Helper to construct station node graphics (Circle + Text) and map their screen coordinates
+        /**
+         * Draws one station: a circle at (xPos, yPos) with its name next to it.
+         * Also records the position under the station's name for createConnection.
+         * @param stationName the name shown, and the key used to look the position up later
+         * @param xPos horizontal position of the dot's center
+         * @param yPos vertical position of the dot's center
+         * @param nodeColor fill color of the dot
+         * @param position where the name sits relative to the dot
+         */
         public void createNode(String stationName, double xPos, double yPos, Color nodeColor, LabelPosition position) {
             stationPositions.put(stationName, new Point2D(xPos, yPos));
 
+            // The dot: radius 5, with a black outline so it stands out against the line.
             Circle circle = new Circle(xPos, yPos, 5, nodeColor);
             circle.setStroke(Color.BLACK);
             circle.setStrokeWidth(1.5);
@@ -129,7 +181,13 @@ public class TrainMap extends Tab {
             Text label = new Text(stationName);
             label.setFont(Font.font(10));
 
-            // Position label relative to station dot
+            /* Place the name relative to the dot. A Text's Y is its baseline (the line the
+             * letters sit on), not its top, which is why BOTTOM adds 8 and LEFT/RIGHT add 3.
+             * Those numbers are tuned by eye for the 10pt font.
+             * getLayoutBounds().getWidth() is the text's width, used to centre the name above
+             * or below the dot, or to push it fully to the left. The offset stops the text
+             * from covering the circle.
+             */
             double offset = 10;
             switch (position) {
                 case TOP -> {
@@ -153,11 +211,19 @@ public class TrainMap extends Tab {
             nodesPane.getChildren().addAll(circle, label);
         }
 
-        // Helper to construct connecting line graphics between stored station coordinates
+        /**
+         * Draws one track as a straight line between two stations.
+         * Does nothing if either station hasn't been created yet, so a name that doesn't
+         * match silently leaves the line out instead of crashing.
+         * @param fromStation name of the station where the line starts
+         * @param toStation name of the station where the line ends
+         * @param trackColor color of the line
+         */
         public void createConnection(String fromStation, String toStation, Color trackColor) {
             Point2D start = stationPositions.get(fromStation);
             Point2D end = stationPositions.get(toStation);
 
+            // An unknown name gives null here, skip the line.
             if (start == null || end == null) return;
 
             Line line = new Line(start.getX(), start.getY(), end.getX(), end.getY());
