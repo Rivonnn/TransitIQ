@@ -20,8 +20,14 @@ public class EventLog extends Tab {
 
         listView.setPlaceholder(new Label("No events yet"));
 
+        Label title = new Label("Control Panel");
+        title.setStyle("-fx-font-family: 'Pixel Operator'; -fx-font-size: 20px; -fx-text-fill: #00e5ff;");
         Label heading = new Label("Recent events");
-        VBox layout = new VBox(10, heading, listView);
+
+        VBox layout = new VBox(10,
+                title,
+                heading,
+                listView);
         VBox.setVgrow(listView, Priority.ALWAYS);
         layout.setPadding(new Insets(20));
         setContent(layout);

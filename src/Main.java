@@ -1,6 +1,8 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.Line;
 import model.Station;
@@ -21,7 +23,6 @@ import java.util.Map;
  * (the service and the clock) and swaps between screens.
  */
 public class Main extends Application {
-
     private Scene scene;
     private PassengerService passengerService;
     private SimulationClock clock;
@@ -43,6 +44,16 @@ public class Main extends Application {
         clock.start();
 
         scene = new Scene(new StackPane(), 700, 450);
+
+        // load fonts first so the CSS can find them by name
+        Font.loadFont(getClass().getResourceAsStream("/fonts/PixelOperator-Bold.ttf"), 16);
+
+        // attach the theme once; it survives every scene.setRoot(...) call
+        scene.getStylesheets().add(getClass().getResource("/pixel.css").toExternalForm());
+        stage.getIcons().add(
+                new Image(getClass().getResource("TransitIQ.png").toExternalForm())
+        );
+
         stage.setTitle("TransitIQ");
         stage.setScene(scene);
         showStart();

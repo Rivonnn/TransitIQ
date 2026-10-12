@@ -18,7 +18,11 @@ public class Controls extends Tab {
         setClosable(false);
         this.clock = clock;
 
+        Label title = new Label("Control Panel");
+        title.setStyle("-fx-font-family: 'Pixel Operator'; -fx-font-size: 20px; -fx-text-fill: #00e5ff;");
+
         VBox layout = new VBox(20,
+                title,
                 buildDelayTrainSection(),
                 new Separator(),
                 buildDisruptionSection(),
@@ -84,6 +88,8 @@ public class Controls extends Tab {
             // 2. Set the button text again from clock.isSuspended().
         });
 
-        return new VBox(8, heading, toggle);
+        return new VBox(8,
+                heading,
+                toggle);
     }
 }

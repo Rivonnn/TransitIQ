@@ -22,13 +22,15 @@ public class StartMenu {
      */
     public StartMenu(Runnable onPassenger, Runnable onAdmin) {
         Label title = new Label("TransitIQ");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold;");
+        title.getStyleClass().add("title");
+
         Label subtitle = new Label("Simulated railway network");
+        subtitle.getStyleClass().add("subtitle");
 
         Button passengerBtn = new Button("Passenger");
         Button adminBtn = new Button("Admin");
-        passengerBtn.setPrefWidth(200);
-        adminBtn.setPrefWidth(200);
+        passengerBtn.setPrefWidth(220);
+        adminBtn.setPrefWidth(220);
 
         passengerBtn.setOnAction(e -> onPassenger.run());
         adminBtn.setOnAction(e -> onAdmin.run());
@@ -37,6 +39,7 @@ public class StartMenu {
         root = new VBox(15, title, subtitle, passengerBtn, adminBtn);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
+        root.getStyleClass().add("menu-root");
     }
     // Lets Main put this screen on the Scene without knowing it is a VBox.
     public Parent getRoot() {

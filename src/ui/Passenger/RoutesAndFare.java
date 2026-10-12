@@ -39,6 +39,9 @@ public class RoutesAndFare extends Tab {
             }
         };
 
+        Label title = new Label("Routes and Fare");
+        title.setStyle("-fx-font-family: 'Pixel Operator'; -fx-font-size: 20px; -fx-text-fill: #00e5ff;");
+
         // ComboBoxes which display the list of Stations.
         ComboBox<Station> source = new ComboBox<>();
         ComboBox<Station> destination = new ComboBox<>();
@@ -125,6 +128,7 @@ public class RoutesAndFare extends Tab {
         HBox fromTo = new HBox(4, sourceWidget, destinationWidget);
 
         VBox form = new VBox(10,
+                title,
                 fromTo,
                 trainTypeWidget,
                 search,

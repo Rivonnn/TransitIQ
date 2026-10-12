@@ -10,6 +10,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 import model.ExpressTrain;
 import model.LocalTrain;
@@ -68,6 +69,7 @@ public class TrainLiveStatus extends Tab {
 
         // Layout: title above the table. setVgrow lets the table take all the leftover height.
         Label title = new Label("Live Status of Trains");
+        title.setStyle("-fx-font-family: 'Pixel Operator'; -fx-font-size: 20px; -fx-text-fill: #00e5ff;");
         VBox layout = new VBox(10, title, table);
         VBox.setVgrow(table, Priority.ALWAYS);
         layout.setPadding(new Insets(20));
