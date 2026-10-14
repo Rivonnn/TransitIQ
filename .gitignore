@@ -28,3 +28,13 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Maven ###
+target/
+.mvn/
+dependency-reduced-pom.xml
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+META-INF/

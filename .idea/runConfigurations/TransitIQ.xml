@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="TransitIQ" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="liberica-full-27" />
     <option name="MAIN_CLASS_NAME" value="Main" />
     <module name="TransitIQ" />
     <option name="VM_PARAMETERS" value="--enable-native-access=javafx.graphics" />

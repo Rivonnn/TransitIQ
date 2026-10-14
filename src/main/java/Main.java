@@ -45,13 +45,15 @@ public class Main extends Application {
 
         scene = new Scene(new StackPane(), 700, 450);
 
-        // load fonts first so the CSS can find them by name
-        Font.loadFont(getClass().getResourceAsStream("/fonts/PixelOperator-Bold.ttf"), 16);
+        // Load font from root of resources
+        Font.loadFont(getClass().getResourceAsStream("/PixelOperator-Bold.ttf"), 16);
 
-        // attach the theme once; it survives every scene.setRoot(...) call
+        // Load stylesheet from root of resources
         scene.getStylesheets().add(getClass().getResource("/pixel.css").toExternalForm());
+
+        // Load icon from root of resources
         stage.getIcons().add(
-                new Image(getClass().getResource("TransitIQ.png").toExternalForm())
+                new Image(getClass().getResource("/TransitIQ.png").toExternalForm())
         );
 
         stage.setTitle("TransitIQ");
