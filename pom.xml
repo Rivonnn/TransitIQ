@@ -31,7 +31,16 @@
 
     <build>
         <plugins>
-            <!-- Keep the Shade Plugin ONLY if you need to bundle external libraries into a single executable Fat JAR -->
+            <!-- JavaFX Maven Plugin for running JavaFX applications -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>Launcher</mainClass>
+                </configuration>
+            </plugin>
+            <!-- Shade Plugin for creating a fat JAR with all dependencies -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
