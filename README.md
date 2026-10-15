@@ -158,33 +158,13 @@ jpackage `
   --main-jar TransitIQ-1.0-SNAPSHOT.jar `
   --main-class Launcher `
   --dest installers `
-  --icon src/main/resources/TransitIQ.png `
+  --icon src/main/resources/TransitIQ.ico `
   --app-version 1.0 `
   --vendor "TransitIQ Team" `
   --description "Transit Information System"
 ```
 
 This will create an MSI installer in the `installers/` directory.
-
-#### 3. Alternative: Using Module Path (if you encounter issues)
-
-If you encounter module-path issues with JavaFX, you may need to specify the module path:
-
-```powershell
-jpackage `
-  --name TransitIQ `
-  --type msi `
-  --module-path "$env:PATH_TO_FX" `
-  --add-modules javafx.controls,javafx.graphics `
-  --main-class Launcher `
-  --dest installers `
-  --icon src/main/resources/TransitIQ.png `
-  --app-version 1.0 `
-  --vendor "TransitIQ Team"
-```
-
-Where `$env:PATH_TO_FX` points to your JavaFX lib directory (e.g.,
-`C:\Users\YourName\.m2\repository\org\openjfx\javafx\25\javafx-25-win`).
 
 ## Application Usage
 
