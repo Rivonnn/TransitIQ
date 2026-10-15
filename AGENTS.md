@@ -4,38 +4,137 @@ This file tells an AI agent how to work on this codebase. Follow it exactly. If 
 
 ## What This Project Is
 
-TransitIQ is a Java OOP mini-project simulating a transit info system (inspired by M-Indicator/Chalo). It runs entirely in the terminal, with no database and no network calls.
+TransitIQ is a Java OOP mini-project simulating a transit info system (inspired by M-Indicator/Chalo). It uses **JavaFX** for a retro-styled graphical interface, with no database or network calls.
+
+## Current Phase: Admin Implementation & Release Preparation
+
+The project is now focused on three main areas:
+1. **Completing the admin interface** - Full control over the transit system
+2. **Polishing the CSS/styling** - Ensure consistent retro neon aesthetic
+3. **Preparing for GitHub release** - Packaging, documentation, and distribution
 
 ## Current Scope — Do Not Exceed It
 
-Only build what's listed below. Do not add anything from the "Not Allowed" list, even if it seems like a natural improvement.
-
 **Allowed:**
-- Terminal input/output using `Scanner`
+- JavaFX GUI components and styling
 - In-memory data using `List` / `Map`
 - Hardcoded seed data written directly in code
 - A simple tick counter to simulate time passing
+- Maven build configuration and packaging
+- MSI installer creation via jpackage or WiX
 
 **Not allowed, until the team explicitly says otherwise:**
 - Databases or persistence (e.g. MySQL, JDBC)
 - REST APIs or any network calls
-- A graphical interface (JavaFX, Swing, web UI)
-- Real multithreading or synchronization
+- Web-based interfaces or server components
+- Real multithreading or synchronization beyond the existing SimulationClock
+- Adding new train lines or stations not already in SeedData (unless refactoring the map)
 
 If a task seems to require one of these, stop and flag it instead of implementing it.
 
 ## Where Code Goes
 
-Place new code based on what it *does*, not what feature it's for. Each folder has one job:
+Place new code based on what it *does*, not what feature it for. Each folder has one job:
 
-- **model** — Data classes that represent real-world things in the system (a train, a station, a passenger, etc.). These classes hold data and basic behavior about themselves. They must not read terminal input or print output.
-- **service** — Logic that operates on model classes to answer a question or perform a calculation (e.g. finding a route, calculating a fare). No terminal input or output here either.
+- **model** — Data classes that represent real-world things in the system (a train, a station, a passenger, etc.). These classes hold data and basic behavior about themselves. They must not interact with JavaFX components directly.
+- **service** — Logic that operates on model classes to answer a question or perform a calculation (e.g. finding a route, calculating a fare). No JavaFX code here either.
 - **simulation** — Code that advances the system over time (the tick counter and whatever reacts to each tick).
 - **exception** — Custom error types for expected failure cases (e.g. an invalid station name, no route found).
 - **util** — Shared helper code, such as seed data setup or input validation, that doesn't belong to one specific class.
-- **Main** — The entry point. This is the only place that should directly use `Scanner` and print menus to the terminal.
+- **ui** — All JavaFX UI code. Organized by screen:
+  - `ui/StartMenu.java` — The main entry screen
+  - `ui/Passenger/` — Passenger-facing screens (PassengerScreen, RoutesAndFare, TrainMap)
+  - `ui/Admin/` — Admin-facing screens (AdminScreen, Controls, EventLog)
+  - `ui/common/` — Shared UI components (TrainLiveStatus)
+- **src/main/resources** — Static assets (CSS, fonts, images)
 
 Before creating a new file, check if an existing file already does this job. Add to it instead of duplicating logic.
+
+## Admin Implementation Priorities
+
+The admin interface is partially complete. Focus on these areas in order:
+
+1. **Controls Tab** (`ui/Admin/Controls.java`)
+   - Ensure all controls work correctly (delay train, network disruption, suspend/resume)
+   - Add validation for delay inputs (prevent negative values)
+   - Add visual feedback when actions are applied
+
+2. **Event Log Tab** (`ui/Admin/EventLog.java`)
+   - Ensure events are logged in real-time
+   - Add filtering options (by event type, time range)
+   - Add export functionality (save log to file)
+
+3. **Train Status Tab** (`ui/common/TrainLiveStatus.java`)
+   - Ensure the table updates in real-time as the simulation runs
+   - Add color coding for train status (e.g., red for delayed, green for on-time)
+   - Add sorting capabilities
+
+4. **Additional Admin Features** (if requested)
+   - Add/remove trains dynamically
+   - Add/remove stations dynamically
+   - Edit train schedules or routes
+
+## CSS & Styling Guidelines
+
+The project uses a retro neon pixel-art theme defined in `src/main/resources/pixel.css`. When styling:
+
+- **Use the existing color palette**:
+  - Background: `#14142b` (dark purple)
+  - Accent: `#00e5ff` (neon blue)
+  - Secondary: `#ff3ea5` (neon pink)
+  - Text: `#f2f2ff` (light retro text)
+  - Controls: `#2a2a5a` (dark purple for buttons/inputs)
+
+- **Font**: Use "Pixel Operator" font (loaded in Main.java) for the retro aesthetic
+
+- **Consistency**: Match existing CSS patterns for similar components (buttons, tables, tabs)
+
+- **No inline styles**: Prefer adding classes to `pixel.css` over inline `-fx-style` strings in Java code
+
+- **Hover states**: All interactive elements should have hover states (already defined for buttons)
+
+## Train Map Implementation
+
+The train map is already implemented in `ui/Passenger/TrainMap.java`. It displays:
+
+- Stations as retro square nodes with labels
+- Track connections as colored lines
+- Uses the neon color palette consistent with the rest of the app
+
+**Map improvements to consider** (if requested):
+- Dynamic positioning based on actual station coordinates
+- Train indicators showing current train positions on the map
+- Zoom/pan functionality for larger networks
+- Legend for line colors
+
+## Release Preparation
+
+When preparing for a GitHub release:
+
+1. **Version Management**
+   - Update `<version>` in `pom.xml` from `1.0-SNAPSHOT` to a release version (e.g., `1.0.0`)
+   - Create a Git tag matching the version (e.g., `v1.0.0`)
+
+2. **Build Artifacts**
+   - Run `mvn clean package` to create the shaded JAR
+   - Optionally create an MSI installer using jpackage (see README.md for commands)
+
+3. **Documentation**
+   - Ensure README.md is up-to-date with installation and usage instructions
+   - Add a CHANGELOG.md if tracking changes
+   - Verify all external links and references are correct
+
+4. **Quality Checks**
+   - Run the application and verify all features work
+   - Check that the admin controls affect the simulation correctly
+   - Verify the train map renders correctly
+   - Test on different screen sizes/resolutions
+
+5. **GitHub Release**
+   - Create a new release on GitHub
+   - Attach the JAR file (and MSI if built)
+   - Write release notes describing what's included
+   - Link to the relevant Git tag
 
 ## Code Style Rules
 
@@ -46,7 +145,8 @@ Before creating a new file, check if an existing file already does this job. Add
 - Keep methods short. If a method is doing several distinct things, split it.
 - Use `enum` for any value that represents a fixed set of states (e.g. a train's status).
 - Validate input and handle expected errors with the custom exceptions — don't let invalid input crash the program.
-- Never put `Scanner` calls or `System.out.print` statements inside `model` or `service` classes.
+- Never put JavaFX component code inside `model` or `service` classes.
+- In UI classes, separate layout logic from business logic where possible.
 
 ## Comments
 

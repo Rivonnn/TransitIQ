@@ -1,0 +1,119 @@
+/* ===== Base theme ===== */
+.root {
+    -fx-base: #1b1b3a;
+    -fx-accent: #00e5ff;
+    -fx-focus-color: #00e5ff;
+    -fx-faint-focus-color: transparent;
+
+    /* One background for every screen. By default JavaFX derives a lighter shade
+       from -fx-base, which is why the start menu looked different from the rest. */
+    -fx-background: #14142b;
+    -fx-background-color: #14142b;
+
+    /* Fill for table rows, text fields and dropdown lists (the pale purple). */
+    -fx-control-inner-background: #1e1e44;
+    -fx-control-inner-background-alt: #232350;
+
+    -fx-font-family: "Pixel Operator";
+    -fx-font-size: 16px;
+}
+
+/* ===== Start menu ===== */
+.title {
+    -fx-font-family: "Pixel Operator";
+    -fx-font-size: 48px;
+    -fx-text-fill: #00e5ff;
+    -fx-effect: dropshadow(one-pass-box, #ff3ea5, 0, 0, 3, 3);
+}
+
+.subtitle {
+    -fx-text-fill: #9a9ac9;
+    -fx-font-size: 24px;
+}
+
+/* ===== Buttons ===== */
+.button {
+    -fx-background-color: #2a2a5a;
+    -fx-background-radius: 0;
+    -fx-border-color: #f2f2ff;
+    -fx-border-width: 3;
+    -fx-border-radius: 0;
+    -fx-text-fill: #f2f2ff;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, #ff3ea5, 0, 0, 3, 3);
+}
+
+.button:hover {
+    -fx-background-color: #3b3b7a;
+    -fx-text-fill: #00e5ff;
+}
+
+.button:pressed {
+    -fx-translate-x: 3;
+    -fx-translate-y: 3;
+    -fx-effect: null;
+}
+
+.button:focused {
+    -fx-background-insets: 0;
+    -fx-border-color: #00e5ff;
+}
+
+/* ===== Text fields ===== */
+.text-input {
+    -fx-background-color: #1e1e44;
+    -fx-background-radius: 0;
+    -fx-border-color: #f2f2ff;
+    -fx-border-width: 2;
+    -fx-border-radius: 0;
+    -fx-text-fill: #f2f2ff;
+    -fx-prompt-text-fill: #8a8ac0;
+}
+
+.text-input:focused {
+    -fx-border-color: #00e5ff;
+}
+
+/* ===== Tables ===== */
+.table-row-cell:empty {
+    -fx-background-color: transparent;   /* no fake rows filling the empty space */
+}
+
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #00e5ff;
+}
+
+/* ===== Tabs ===== */
+.tab:selected .tab-label {
+    -fx-text-fill: #00e5ff;
+}
+
+/* ===== Reusable style classes ===== */
+.heading {
+    -fx-text-fill: #00e5ff;
+    -fx-font-size: 32px;
+}
+
+.error-label {
+    -fx-text-fill: #ff3ea5;
+}
+
+/* ===== ScrollBars ===== */
+.scroll-bar {
+    -fx-background-color: #14142b;
+    -fx-background-radius: 0;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #2a2a5a;
+    -fx-background-radius: 0;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #00e5ff;
+}

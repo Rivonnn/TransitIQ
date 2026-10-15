@@ -3,6 +3,9 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
+.idea/
+*.iml
+META-INF/
 
 ### Eclipse ###
 .apt_generated
@@ -28,3 +31,12 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Maven ###
+target/
+.mvn/
+dependency-reduced-pom.xml
+
+### Build Artifacts ###
+installers/
+*.msi
