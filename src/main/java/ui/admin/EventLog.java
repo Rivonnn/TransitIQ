@@ -1,4 +1,4 @@
-package ui.Admin;
+package ui.admin;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;

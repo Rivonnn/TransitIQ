@@ -1,4 +1,4 @@
-package ui.Passenger;
+package ui.passenger;
 
 import javafx.geometry.Insets;
 import javafx.scene.Parent;

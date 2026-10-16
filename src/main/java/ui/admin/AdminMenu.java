@@ -1,4 +1,4 @@
-package ui.Admin;
+package ui.admin;
 
 import simulation.SimulationClock;
 

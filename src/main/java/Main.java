@@ -9,8 +9,8 @@ import model.Station;
 import model.Train;
 import service.PassengerService;
 import simulation.SimulationClock;
-import ui.Admin.AdminScreen;
-import ui.Passenger.PassengerScreen;
+import ui.admin.AdminScreen;
+import ui.passenger.PassengerScreen;
 import ui.StartMenu;
 import util.SeedData;
 

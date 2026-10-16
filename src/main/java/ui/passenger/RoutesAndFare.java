@@ -1,4 +1,4 @@
-package ui.Passenger;
+package ui.passenger;
 
 import exceptions.NoRouteFoundException;
 import javafx.geometry.Insets;
