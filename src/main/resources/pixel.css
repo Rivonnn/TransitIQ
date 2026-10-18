@@ -103,6 +103,25 @@
     -fx-text-fill: #ff3ea5;
 }
 
+.map-caption {
+    -fx-text-fill: #9a9ac9;
+}
+
+.map-viewport {
+    -fx-background: #14142b;
+    -fx-background-color: #14142b;
+    -fx-border-color: #3b3b7a;
+    -fx-border-width: 2;
+}
+
+.network-map {
+    -fx-background-color: #14142b;
+}
+
+.map-station-label {
+    -fx-fill: #f2f2ff;
+}
+
 /* ===== ScrollBars ===== */
 .scroll-bar {
     -fx-background-color: #14142b;
