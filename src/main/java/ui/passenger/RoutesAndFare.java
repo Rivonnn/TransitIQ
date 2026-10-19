@@ -28,7 +28,7 @@ public final class RoutesAndFare extends Tab {
     // Tells the ComboBox to show a station's name instead of the object's default
     // text. fromString is never used because the boxes aren't editable, so it returns null.
     StringConverter<Station> nameConverter =
-        new StringConverter<Station>() {
+        new StringConverter<>() {
           @Override
           public String toString(Station s) {
             return s == null ? "" : s.getName();
@@ -78,7 +78,7 @@ public final class RoutesAndFare extends Tab {
 
     // Runs on every click. First clear the previous search's results.
     search.setOnAction(
-        e -> {
+        _ -> {
           routeLabel.setText("");
           fareLabel.setText("");
           errorLabel.setText("");

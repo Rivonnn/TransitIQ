@@ -83,7 +83,7 @@ public final class TrainLiveStatus extends Tab {
     // JavaFX thread, so updating the table from it is safe without Platform.runLater.
     // NOTE: it's never stopped. Each visit to a screen creates a new tab and a new
     // timer, and the old ones keep running. Harmless here, but wasteful.
-    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> refresh()));
+    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), _ -> refresh()));
     timeline.setCycleCount(Timeline.INDEFINITE);
     timeline.play();
   }

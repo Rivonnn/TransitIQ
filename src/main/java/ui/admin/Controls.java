@@ -35,7 +35,7 @@ public final class Controls extends Tab {
     setContent(layout);
   }
 
-  // Terminal option 1: delay one train
+  // Builds Delay Train Vertical Box
   private VBox buildDelayTrainSection() {
     Label heading = new Label("Delay a train");
     TextField idField = new TextField();
@@ -46,7 +46,8 @@ public final class Controls extends Tab {
     Label result = new Label();
 
     apply.setOnAction(
-        e -> {
+        _ -> {
+          // TODO
           // 1. Read and trim both fields.
           // 2. Parse the minutes (try/catch NumberFormatException) -> message in result, then
           // return.
@@ -66,8 +67,8 @@ public final class Controls extends Tab {
     Label result = new Label();
 
     apply.setOnAction(
-        e -> {
-          // Same checks as above for the minutes, then clock.delayAllTrains(minutes).
+        _ -> {
+          // TODO: Same checks as above for the minutes, then clock.delayAllTrains(minutes).
         });
 
     return new VBox(8, heading, minutesField, apply, result);
@@ -83,13 +84,14 @@ public final class Controls extends Tab {
     //       ("Suspend service" or "Resume service")
 
     toggle.setOnAction(
-        e -> {
+        _ -> {
           if (serviceStatus.equals("Suspend service")) {
             serviceStatus = "Resume service";
           } else {
             serviceStatus = "Suspend service";
           }
           toggle.setText(serviceStatus);
+          // TODO
           // 1. Call clock.setSuspended(opposite of clock.isSuspended()).
           // 2. Set the button text again from clock.isSuspended().
         });
