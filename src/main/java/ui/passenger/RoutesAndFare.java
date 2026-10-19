@@ -16,7 +16,7 @@ import service.PassengerService;
  * "Route & Fare" tab: pick two stations and a train type, press Search to see the route and the
  * fare. Input errors and "no route" messages show in red.
  */
-public class RoutesAndFare extends Tab {
+public final class RoutesAndFare extends Tab {
 
   /**
    * @param service provides the stations, route search, train lookup and fare calculation

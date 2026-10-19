@@ -26,7 +26,7 @@ import simulation.SimulationClock;
  * by both the passenger and admin screens, each with its own instance, because a Tab can only
  * belong to one TabPane.
  */
-public class TrainLiveStatus extends Tab {
+public final class TrainLiveStatus extends Tab {
 
   /**
    * One line of the table. Everything is a String, as it's only for display. It's a snapshot of a
@@ -48,6 +48,7 @@ public class TrainLiveStatus extends Tab {
    * @param service provides the trains and the stations
    * @param clock the simulation clock; locked on while the trains are read
    */
+  @SuppressWarnings("unchecked")
   public TrainLiveStatus(PassengerService service, SimulationClock clock) {
     super("Train Status");
     setClosable(false);

@@ -17,7 +17,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 /** - Map tab: draws the stations as retro squares and the tracks as lines. */
-public class TrainMap extends Tab {
+public final class TrainMap extends Tab {
 
   // Colours
   private static final Color GREEN = Color.web("#00ff88");

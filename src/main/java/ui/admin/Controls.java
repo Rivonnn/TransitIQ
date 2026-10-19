@@ -9,7 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import simulation.SimulationClock;
 
-public class Controls extends Tab {
+public final class Controls extends Tab {
 
   private final SimulationClock clock;
 

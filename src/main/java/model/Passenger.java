@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A passenger: where they start, where they want to go, and the route they chose. */
-public class Passenger {
+public final class Passenger {
   private final String name;
   private final Station source;
   private final Station destination;
@@ -33,7 +33,7 @@ public class Passenger {
   }
 
   public List<Station> getChosenRoute() {
-    return chosenRoute;
+    return chosenRoute == null ? List.of() : List.copyOf(chosenRoute);
   }
 
   // Stores the route this passenger picked (for example one returned by RoutePlanner).

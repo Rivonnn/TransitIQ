@@ -8,7 +8,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import simulation.SimulationClock;
 
-public class EventLog extends Tab {
+public final class EventLog extends Tab {
 
   private final SimulationClock clock;
   private final ListView<String> listView = new ListView<>();
