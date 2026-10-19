@@ -9,8 +9,8 @@ TransitIQ is a Java OOP mini-project simulating a transit info system (inspired 
 ## Current Phase: Admin Implementation & Release Preparation
 
 The project is now focused on three main areas:
-1. **Completing the admin interface** - Full control over the transit system
-2. **Polishing the CSS/styling** - Ensure consistent retro neon aesthetic
+1. **Completing the admin interface** - Full control over the transit system (Controls and EventLog tabs have TODOs to complete)
+2. **Polishing the CSS/styling** - Ensure consistent retro neon aesthetic (CSS is complete)
 3. **Preparing for GitHub release** - Packaging, documentation, and distribution
 
 ## Current Scope — Do Not Exceed It
@@ -38,13 +38,13 @@ Place new code based on what it *does*, not what feature it for. Each folder has
 
 - **model** — Data classes that represent real-world things in the system (a train, a station, a passenger, etc.). These classes hold data and basic behavior about themselves. They must not interact with JavaFX components directly.
 - **service** — Logic that operates on model classes to answer a question or perform a calculation (e.g. finding a route, calculating a fare). No JavaFX code here either.
-- **simulation** — Code that advances the system over time (the tick counter and whatever reacts to each tick).
+- **simulation** — Code that advances the system over time (the tick counter and whatever reacts to each tick). The SimulationClock runs on its own daemon thread and includes event logging with automatic log rotation (max 200 entries). It provides synchronized admin operations: delayTrain, delayAllTrains, setSuspended, isSuspended, and read-only accessors: getEventLog, getStatusReport, getTickCount.
 - **exception** — Custom error types for expected failure cases (e.g. an invalid station name, no route found).
 - **util** — Shared helper code, such as seed data setup or input validation, that doesn't belong to one specific class.
 - **ui** — All JavaFX UI code. Organized by screen:
   - `ui/StartMenu.java` — The main entry screen
   - `ui/Passenger/` — Passenger-facing screens (PassengerScreen, RoutesAndFare, TrainMap)
-  - `ui/Admin/` — Admin-facing screens (AdminScreen, Controls, EventLog)
+  - `ui/Admin/` — Admin-facing screens (AdminMenu, AdminScreen, Controls, EventLog)
   - `ui/common/` — Shared UI components (TrainLiveStatus)
 - **src/main/resources** — Static assets (CSS, fonts, images)
 
@@ -52,22 +52,26 @@ Before creating a new file, check if an existing file already does this job. Add
 
 ## Admin Implementation Priorities
 
-The admin interface is partially complete. Focus on these areas in order:
+The admin interface is structured but has TODOs remaining. Focus on these areas in order:
 
-1. **Controls Tab** (`ui/Admin/Controls.java`)
-   - Ensure all controls work correctly (delay train, network disruption, suspend/resume)
-   - Add validation for delay inputs (prevent negative values)
-   - Add visual feedback when actions are applied
+1. **Controls Tab** (`ui/Admin/Controls.java`) - **Partially complete with TODOs**
+   - Currently: UI is built, but button handlers have TODO comments
+   - Complete the TODO for delay train validation (parse minutes, reject negative, call clock.delayTrain)
+   - Complete the TODO for network disruption (validate minutes, call clock.delayAllTrains)
+   - Complete the TODO for service toggle (read from clock.isSuspended, call clock.setSuspended)
+   - Add visual feedback when actions are applied (result labels are present but not used)
 
-2. **Event Log Tab** (`ui/Admin/EventLog.java`)
-   - Ensure events are logged in real-time
-   - Add filtering options (by event type, time range)
-   - Add export functionality (save log to file)
+2. **Event Log Tab** (`ui/Admin/EventLog.java`) - **Partially complete with TODOs**
+   - Currently: UI is built with ListView, but refresh() method has TODO comments
+   - Complete the TODO for refresh() to populate the list from clock.getEventLog()
+   - Complete the TODO for auto-refresh via Timeline (every second, same pattern as TrainLiveStatus)
+   - Future enhancements: filtering options (by event type, time range), export functionality
 
-3. **Train Status Tab** (`ui/common/TrainLiveStatus.java`)
-   - Ensure the table updates in real-time as the simulation runs
-   - Add color coding for train status (e.g., red for delayed, green for on-time)
-   - Add sorting capabilities
+3. **Train Status Tab** (`ui/common/TrainLiveStatus.java`) - **Complete**
+   - Table updates in real-time every second via Timeline
+   - Thread-safe reading of train state (synchronized on clock)
+   - Displays train ID, type, status, current station, and delay
+   - Future enhancements: color coding for train status, sorting capabilities
 
 4. **Additional Admin Features** (if requested)
    - Add/remove trains dynamically
@@ -84,14 +88,24 @@ The project uses a retro neon pixel-art theme defined in `src/main/resources/pix
   - Secondary: `#ff3ea5` (neon pink)
   - Text: `#f2f2ff` (light retro text)
   - Controls: `#2a2a5a` (dark purple for buttons/inputs)
+  - Control inner background: `#1e1e44` (pale purple for tables/inputs)
 
 - **Font**: Use "Pixel Operator" font (loaded in Main.java) for the retro aesthetic
 
-- **Consistency**: Match existing CSS patterns for similar components (buttons, tables, tabs)
+- **Consistency**: Match existing CSS patterns for similar components (buttons, tables, tabs, scrollbars)
 
 - **No inline styles**: Prefer adding classes to `pixel.css` over inline `-fx-style` strings in Java code
 
-- **Hover states**: All interactive elements should have hover states (already defined for buttons)
+- **Existing CSS classes**:
+  - `.title` - Large title text (48px, neon blue with pink shadow)
+  - `.subtitle` - Smaller subtitle text (24px, light purple)
+  - `.button` - Button styling with hover and pressed states
+  - `.text-input` - Text field styling with focus state
+  - `.heading` - Medium heading text (32px, neon blue)
+  - `.error-label` - Error text color (neon pink)
+  - `.table-row-cell:empty` - Empty table row styling
+  - `.tab:selected` - Selected tab styling
+  - `.scroll-bar` - Custom scrollbar styling
 
 ## Train Map Implementation
 
