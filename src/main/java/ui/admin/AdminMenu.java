@@ -15,7 +15,7 @@ public class AdminMenu {
 
   public AdminMenu(SimulationClock clock) {
     this.clock = clock;
-    this.scanner = new Scanner(System.in);
+    this.scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
   }
 
   public void show() {
