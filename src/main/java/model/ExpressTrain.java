@@ -18,7 +18,7 @@ public class ExpressTrain extends Train {
    */
   public ExpressTrain(String id, int speed, double baseFare, Set<Integer> stopStations) {
     super(id, speed, baseFare * 1.5);
-    this.stopStations = stopStations;
+    this.stopStations = stopStations == null ? Set.of() : Set.copyOf(stopStations);
   }
 
   /**

@@ -8,7 +8,7 @@ public class Station {
 
   public Station(String name, List<Line> lines) {
     this.name = name;
-    this.lines = lines;
+    this.lines = lines == null ? List.of() : List.copyOf(lines);
   }
 
   public String getName() {

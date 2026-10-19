@@ -6,7 +6,7 @@ public class Route {
   private final List<Station> stations;
 
   public Route(List<Station> stations) {
-    this.stations = stations;
+    this.stations = stations == null ? List.of() : List.copyOf(stations);
   }
 
   public List<Station> getStations() {
