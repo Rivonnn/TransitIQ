@@ -1,0 +1,45 @@
+name: Format, Lint and Build
+
+# Run on PRs into master, and on direct pushes/merges to master
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+# Least privilege: this workflow only needs to read the repo
+permissions:
+  contents: read
+
+# If a newer run starts for the same branch/PR, cancel the older one
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job ID (internal label). Branch rules reference the job's name below.
+  verify:
+    name: Verify (Java 25)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Must match maven.compiler.release in pom.xml; caches ~/.m2 for faster runs
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      # Fast fail: fails in seconds if any file isn't google-java-format clean.
+      # Fix locally with: mvn spotless:apply
+      - name: Check code formatting (Spotless)
+        run: mvn --batch-mode --no-transfer-progress spotless:check
+
+      # Full pipeline from a clean state: compile with -Xlint:all warnings, run
+      # SpotBugs, package the shaded JAR, then run final verification.
+      # Spotless re-runs in the verify phase as configured in pom.xml.
+      - name: Build, Lint (Compiler + SpotBugs), and Package
+        run: mvn --batch-mode --no-transfer-progress clean verify

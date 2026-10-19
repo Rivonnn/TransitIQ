@@ -3,13 +3,13 @@ package model;
 import java.util.List;
 
 public class Route {
-    private final List<Station> stations;
+  private final List<Station> stations;
 
-    public Route(List<Station> stations) {
-        this.stations = stations;
-    }
+  public Route(List<Station> stations) {
+    this.stations = stations == null ? List.of() : List.copyOf(stations);
+  }
 
-    public List<Station> getStations() {
-        return stations;
-    }
+  public List<Station> getStations() {
+    return stations;
+  }
 }

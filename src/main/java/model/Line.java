@@ -1,7 +1,7 @@
 package model;
 
 public enum Line {
-    WESTERN,
-    CENTRAL,
-    HARBOUR
+  WESTERN,
+  CENTRAL,
+  HARBOUR
 }

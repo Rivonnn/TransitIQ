@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+      Exclude EI_EXPOSE_REP and EI_EXPOSE_REP2 (exposing mutable internal state).
+      These warnings are intentionally ignored because:
+      - UI root nodes (JavaFX) are intentionally shared and modified by the framework
+      - Simulation state collections (trains, stations) are intentionally mutable for performance
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

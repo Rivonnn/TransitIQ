@@ -128,6 +128,42 @@ After building (see below), run:
 java -jar target/TransitIQ-1.0-SNAPSHOT.jar
 ```
 
+## Code Quality, Formatting & Linting
+
+TransitIQ uses Maven plugins to enforce style consistency, clean imports, and perform static analysis:
+
+### 1. Code Formatting (Spotless + Google Java Format)
+- **Check formatting** (checks compliance without modifying files):
+  ```powershell
+  mvn spotless:check
+  ```
+- **Apply formatting** (automatically reformats all Java source files and removes unused imports):
+  ```powershell
+  mvn spotless:apply
+  ```
+
+### 2. Static Analysis & Code Linting (SpotBugs)
+- **Run SpotBugs analysis**:
+  ```powershell
+  mvn spotbugs:check
+  ```
+- **Launch SpotBugs GUI** (inspect detailed bug patterns in an interactive window):
+  ```powershell
+  mvn spotbugs:gui
+  ```
+
+### 3. Compiler Warnings
+- **Compile with all lint warnings enabled (`-Xlint:all`)**:
+  ```powershell
+  mvn clean compile
+  ```
+
+### 4. Full Verification Pipeline
+Run formatting checks, compiler linting, SpotBugs analysis, and shaded packaging all together:
+```powershell
+mvn clean verify
+```
+
 ## Building for Distribution
 
 ### Build a Fat JAR (Single Executable)
@@ -193,3 +229,7 @@ The application starts with a main menu where you can choose between:
 - Simple tick counter for time simulation
 - No database, persistence, REST APIs, or web server
 - Retro pixel-art styling with neon color palette
+
+## Contributing
+
+Please review [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on the development workflow, coding standards, Spotless formatting, and SpotBugs linting.
