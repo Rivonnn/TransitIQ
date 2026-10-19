@@ -14,11 +14,11 @@ retro-styled graphical interface, with no database or network calls.
 
 ### Admin Features
 
-- Train delay management (delay individual trains)
-- Network disruption handling (delay all trains simultaneously)
-- Service suspension/resume functionality
-- Real-time train status monitoring
-- Event log tracking and viewing
+- Train delay management (delay individual trains) - UI built, implementation pending
+- Network disruption handling (delay all trains simultaneously) - UI built, implementation pending
+- Service suspension/resume functionality - UI built, implementation pending
+- Real-time train status monitoring (with automatic refresh every second)
+- Event log tracking and viewing (auto-refresh pending)
 
 ### System Features
 
@@ -34,10 +34,10 @@ retro-styled graphical interface, with no database or network calls.
 src/
 ├── Main.java              # JavaFX Application entry point
 ├── Launcher.java          # Simple launcher for packaging
-├── model/                 # Data classes (Train, Station, Line, etc.)
-├── service/               # Business logic (RoutePlanner, FareCalculator)
+├── model/                 # Data classes (Train, Station, Line, TrainStatus, etc.)
+├── service/               # Business logic (RoutePlanner, FareCalculator, PassengerService)
 ├── simulation/            # Time simulation (SimulationClock)
-├── exception/             # Custom exceptions
+├── exception/             # Custom exceptions (InvalidStationException, NoRouteFoundException)
 ├── util/                  # Helpers (SeedData, Validator)
 └── ui/                    # JavaFX screens
     ├── StartMenu.java
@@ -46,11 +46,18 @@ src/
     │   ├── RoutesAndFare.java
     │   └── TrainMap.java
     ├── Admin/
+    │   ├── AdminMenu.java
     │   ├── AdminScreen.java
     │   ├── Controls.java
     │   └── EventLog.java
     └── common/
         └── TrainLiveStatus.java
+
+src/main/resources/
+├── pixel.css              # Retro neon pixel-art styling
+├── PixelOperator-Bold.ttf # Retro pixel font
+├── TransitIQ.ico          # Windows icon for installer
+└── TransitIQ.png          # Application icon
 ```
 
 ## OOP Concepts Used
@@ -164,6 +171,8 @@ Run formatting checks, compiler linting, SpotBugs analysis, and shaded packaging
 mvn clean verify
 ```
 
+**Note**: The Maven Shade plugin is configured to exclude duplicate signature and license files to prevent warnings during the build process.
+
 ## Building for Distribution
 
 ### Build a Fat JAR (Single Executable)
@@ -172,7 +181,7 @@ mvn clean verify
 mvn clean package
 ```
 
-This creates a shaded JAR at `target/TransitIQ-1.0-SNAPSHOT.jar` with all dependencies bundled.
+This creates a shaded JAR at `target/TransitIQ-1.0-SNAPSHOT.jar` with all dependencies bundled. The Maven Shade plugin is configured to exclude duplicate signature and license files to prevent warnings.
 
 ### Create an MSI Installer
 
@@ -229,6 +238,7 @@ The application starts with a main menu where you can choose between:
 - Simple tick counter for time simulation
 - No database, persistence, REST APIs, or web server
 - Retro pixel-art styling with neon color palette
+- Admin interface is structured but has TODOs remaining in Controls and EventLog tabs
 
 ## Contributing
 
