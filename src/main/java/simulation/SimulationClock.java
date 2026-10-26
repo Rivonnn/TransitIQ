@@ -16,6 +16,14 @@ import model.TrainStatus;
  */
 public class SimulationClock implements Runnable {
 
+  public record AdminSummary(
+      int tickCount,
+      int movingTrains,
+      int waitingTrains,
+      int arrivedTrains,
+      int delayedTrains,
+      boolean suspended) {}
+
   private static final int MAX_LOG_ENTRIES = 200;
 
   private final List<Train> trains;
@@ -123,6 +131,41 @@ public class SimulationClock implements Runnable {
       }
     }
     return false;
+  }
+
+  /** Clears a train delay; returns -1 when the train does not exist. */
+  public synchronized int clearTrainDelay(String trainId) {
+    for (Train train : trains) {
+      if (!train.getId().equalsIgnoreCase(trainId)) {
+        continue;
+      }
+      int clearedMinutes = train.getDelayMinutes();
+      if (clearedMinutes > 0) {
+        train.setDelayMinutes(0);
+        log("ADMIN: " + train.getId() + " delay cleared");
+      }
+      return clearedMinutes;
+    }
+    return -1;
+  }
+
+  /** Returns a consistent snapshot of the counts shown on the admin control panel. */
+  public synchronized AdminSummary getAdminSummary() {
+    int moving = 0;
+    int waiting = 0;
+    int arrived = 0;
+    int delayed = 0;
+    for (Train train : trains) {
+      switch (train.getStatus()) {
+        case MOVING -> moving++;
+        case WAITING -> waiting++;
+        case ARRIVED -> arrived++;
+      }
+      if (train.getDelayMinutes() > 0) {
+        delayed++;
+      }
+    }
+    return new AdminSummary(tickCount, moving, waiting, arrived, delayed, suspended);
   }
 
   /** Disruption: adds delay to every train. */
