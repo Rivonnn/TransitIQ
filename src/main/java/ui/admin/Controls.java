@@ -10,18 +10,15 @@ import javafx.scene.layout.VBox;
 import simulation.SimulationClock;
 
 public final class Controls extends Tab {
-
   private final SimulationClock clock;
 
   public Controls(SimulationClock clock) {
     super("Controls");
     setClosable(false);
     this.clock = clock;
-
     Label title = new Label("Control Panel");
     title.setStyle(
         "-fx-font-family: 'Pixel Operator'; -fx-font-size: 20px; -fx-text-fill: #00e5ff;");
-
     VBox layout =
         new VBox(
             20,
@@ -35,7 +32,6 @@ public final class Controls extends Tab {
     setContent(layout);
   }
 
-  // Builds Delay Train Vertical Box
   private VBox buildDelayTrainSection() {
     Label heading = new Label("Delay a train");
     TextField idField = new TextField();
@@ -44,58 +40,74 @@ public final class Controls extends Tab {
     minutesField.setPromptText("Delay in minutes");
     Button apply = new Button("Apply delay");
     Label result = new Label();
-
     apply.setOnAction(
         _ -> {
-          // TODO
-          // 1. Read and trim both fields.
-          // 2. Parse the minutes (try/catch NumberFormatException) -> message in result, then
-          // return.
-          // 3. Reject 0 or negative -> message in result, then return.
-          // 4. Call clock.delayTrain(id, minutes) and show "delayed" or "no such train".
+          String trainId = idField.getText().trim();
+          if (trainId.isEmpty()) {
+            result.setText("Enter a train ID.");
+            return;
+          }
+          Integer minutes = parsePositiveMinutes(minutesField.getText(), result);
+          if (minutes == null) return;
+          if (clock.delayTrain(trainId, minutes)) {
+            result.setText("Train " + trainId.toUpperCase() + " delayed by " + minutes + " min.");
+          } else {
+            result.setText("No train with ID '" + trainId + "'.");
+          }
         });
-
     return new VBox(8, heading, idField, minutesField, apply, result);
   }
 
-  // Terminal option 2: delay every train
   private VBox buildDisruptionSection() {
     Label heading = new Label("Network disruption (delay all trains)");
     TextField minutesField = new TextField();
     minutesField.setPromptText("Delay in minutes");
     Button apply = new Button("Trigger disruption");
     Label result = new Label();
-
     apply.setOnAction(
         _ -> {
-          // TODO: Same checks as above for the minutes, then clock.delayAllTrains(minutes).
+          Integer minutes = parsePositiveMinutes(minutesField.getText(), result);
+          if (minutes == null) return;
+          clock.delayAllTrains(minutes);
+          result.setText("Disruption applied: all trains delayed by " + minutes + " min.");
         });
-
     return new VBox(8, heading, minutesField, apply, result);
   }
 
-  String serviceStatus = "Suspend service";
-
-  // Terminal option 3: suspend / resume
   private VBox buildServiceSection() {
     Label heading = new Label("Service");
-    Button toggle = new Button(serviceStatus);
-    // TODO: set the button text from clock.isSuspended()
-    //       ("Suspend service" or "Resume service")
-
+    Button toggle = new Button();
+    Label result = new Label();
+    updateServiceButton(toggle);
     toggle.setOnAction(
         _ -> {
-          if (serviceStatus.equals("Suspend service")) {
-            serviceStatus = "Resume service";
-          } else {
-            serviceStatus = "Suspend service";
+          boolean suspended;
+          synchronized (clock) {
+            suspended = !clock.isSuspended();
+            clock.setSuspended(suspended);
           }
-          toggle.setText(serviceStatus);
-          // TODO
-          // 1. Call clock.setSuspended(opposite of clock.isSuspended()).
-          // 2. Set the button text again from clock.isSuspended().
+          updateServiceButton(toggle);
+          result.setText("Service " + (suspended ? "suspended." : "resumed."));
         });
+    return new VBox(8, heading, toggle, result);
+  }
 
-    return new VBox(8, heading, toggle);
+  private Integer parsePositiveMinutes(String text, Label result) {
+    int minutes;
+    try {
+      minutes = Integer.parseInt(text.trim());
+    } catch (NumberFormatException e) {
+      result.setText("Enter a valid number of minutes.");
+      return null;
+    }
+    if (minutes <= 0) {
+      result.setText("Enter a number greater than 0.");
+      return null;
+    }
+    return minutes;
+  }
+
+  private void updateServiceButton(Button toggle) {
+    toggle.setText(clock.isSuspended() ? "Resume service" : "Suspend service");
   }
 }
