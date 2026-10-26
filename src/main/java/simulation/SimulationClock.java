@@ -16,6 +16,7 @@ import model.TrainStatus;
  */
 public class SimulationClock implements Runnable {
 
+  /** Immutable, consistent snapshot used by the admin dashboard. */
   public record AdminSummary(
       int tickCount,
       int movingTrains,
@@ -133,7 +134,10 @@ public class SimulationClock implements Runnable {
     return false;
   }
 
-  /** Clears a train delay; returns -1 when the train does not exist. */
+  /**
+   * Clears a train delay. Returns the minutes cleared, 0 if there was no active delay, or -1 if no
+   * train has the supplied ID.
+   */
   public synchronized int clearTrainDelay(String trainId) {
     for (Train train : trains) {
       if (!train.getId().equalsIgnoreCase(trainId)) {
@@ -149,7 +153,7 @@ public class SimulationClock implements Runnable {
     return -1;
   }
 
-  /** Returns a consistent snapshot of the counts shown on the admin control panel. */
+  /** Returns a consistent snapshot of the train-state counts shown on the admin control panel. */
   public synchronized AdminSummary getAdminSummary() {
     int moving = 0;
     int waiting = 0;

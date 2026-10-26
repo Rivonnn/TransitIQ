@@ -70,6 +70,7 @@ public final class EventLog extends Tab {
     timeline.play();
   }
 
+  /** Reapplies filters to a fresh log snapshot as the simulation adds events. */
   private void refresh() {
     List<String> matchingEvents = new ArrayList<>();
     String query = searchField.getText().trim().toLowerCase(Locale.ROOT);
@@ -85,6 +86,7 @@ public final class EventLog extends Tab {
     }
   }
 
+  /** Matches SimulationClock event wording against the selected category. */
   private boolean matchesType(String event, String selectedType) {
     if (selectedType == null || ALL_EVENTS.equals(selectedType)) return true;
     String lowerEvent = event.toLowerCase(Locale.ROOT);
@@ -101,6 +103,7 @@ public final class EventLog extends Tab {
     };
   }
 
+  /** Exports exactly the entries currently visible after applying both filters. */
   private void exportFilteredEvents() {
     FileChooser chooser = new FileChooser();
     chooser.setTitle("Export filtered event log");
@@ -127,6 +130,7 @@ public final class EventLog extends Tab {
     }
   }
 
+  /** Quotes each field and doubles embedded quotes as required by CSV. */
   private String escapeCsv(String value) {
     String quote = String.valueOf((char) 34);
     return quote + value.replace(quote, quote + quote) + quote;

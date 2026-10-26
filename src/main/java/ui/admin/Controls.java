@@ -48,6 +48,7 @@ public final class Controls extends Tab {
     setContent(scrollPane);
 
     refreshSummary();
+    // The clock provides a synchronized snapshot; Timeline keeps UI updates on the JavaFX thread.
     Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), _ -> refreshSummary()));
     timeline.setCycleCount(Timeline.INDEFINITE);
     timeline.play();
@@ -182,6 +183,7 @@ public final class Controls extends Tab {
     toggle.setText(clock.isSuspended() ? "Resume service" : "Suspend service");
   }
 
+  /** Refreshes the dashboard from one clock snapshot so its counts stay consistent. */
   private void refreshSummary() {
     AdminSummary current = clock.getAdminSummary();
     summary.setText(
