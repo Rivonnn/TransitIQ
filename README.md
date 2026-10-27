@@ -14,11 +14,13 @@ retro-styled graphical interface, with no database or network calls.
 
 ### Admin Features
 
-- Train delay management (delay individual trains) - UI built, implementation pending
-- Network disruption handling (delay all trains simultaneously) - UI built, implementation pending
-- Service suspension/resume functionality - UI built, implementation pending
-- Real-time train status monitoring (with automatic refresh every second)
-- Event log tracking and viewing (auto-refresh pending)
+- Individual train delays with train ID lookup, positive-minute validation, and action feedback
+- Network disruptions that delay every train, with custom durations or 5- and 10-minute presets
+- Service suspension and resumption controls
+- Manual clearing of an individual train's active delay
+- A live network overview showing simulation tick, train states, delayed trains, and service status
+- Real-time train status monitoring with automatic refresh every second
+- An event log that refreshes automatically, supports event-type and text filters, and exports the filtered entries to CSV
 
 ### System Features
 
@@ -41,11 +43,11 @@ src/
 ├── util/                  # Helpers (SeedData, Validator)
 └── ui/                    # JavaFX screens
     ├── StartMenu.java
-    ├── Passenger/
+    ├── passenger/
     │   ├── PassengerScreen.java
     │   ├── RoutesAndFare.java
     │   └── TrainMap.java
-    ├── Admin/
+    ├── admin/
     │   ├── AdminMenu.java
     │   ├── AdminScreen.java
     │   ├── Controls.java
@@ -126,6 +128,16 @@ mvn javafx:run
     - Main class: "Main"
     - Working directory: `$PROJECT_DIR$`
     - Save and run using the configuration
+
+### Using the Admin Controls
+
+From the start screen, choose **Admin Menu** and use the **Controls**, **Train Status**, and **Event Log** tabs.
+
+- **Delay a train:** enter a train ID and a positive delay in minutes. The seeded trains are **L101** and **E201**.
+- **Clear a delay:** enter the train ID to remove its remaining delay immediately.
+- **Network disruption:** enter a positive number of minutes to delay every train, or use the 5- or 10-minute preset.
+- **Service:** use the button to suspend or resume train movement. The network overview updates every second.
+- **Event Log:** choose an event category and/or search text to filter entries. **Export filtered CSV** saves the entries currently shown.
 
 ### Option 3: Run the JAR Directly
 

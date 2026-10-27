@@ -16,6 +16,15 @@ import model.TrainStatus;
  */
 public class SimulationClock implements Runnable {
 
+  /** Immutable, consistent snapshot used by the admin dashboard. */
+  public record AdminSummary(
+      int tickCount,
+      int movingTrains,
+      int waitingTrains,
+      int arrivedTrains,
+      int delayedTrains,
+      boolean suspended) {}
+
   private static final int MAX_LOG_ENTRIES = 200;
 
   private final List<Train> trains;
@@ -123,6 +132,44 @@ public class SimulationClock implements Runnable {
       }
     }
     return false;
+  }
+
+  /**
+   * Clears a train delay. Returns the minutes cleared, 0 if there was no active delay, or -1 if no
+   * train has the supplied ID.
+   */
+  public synchronized int clearTrainDelay(String trainId) {
+    for (Train train : trains) {
+      if (!train.getId().equalsIgnoreCase(trainId)) {
+        continue;
+      }
+      int clearedMinutes = train.getDelayMinutes();
+      if (clearedMinutes > 0) {
+        train.setDelayMinutes(0);
+        log("ADMIN: " + train.getId() + " delay cleared");
+      }
+      return clearedMinutes;
+    }
+    return -1;
+  }
+
+  /** Returns a consistent snapshot of the train-state counts shown on the admin control panel. */
+  public synchronized AdminSummary getAdminSummary() {
+    int moving = 0;
+    int waiting = 0;
+    int arrived = 0;
+    int delayed = 0;
+    for (Train train : trains) {
+      switch (train.getStatus()) {
+        case MOVING -> moving++;
+        case WAITING -> waiting++;
+        case ARRIVED -> arrived++;
+      }
+      if (train.getDelayMinutes() > 0) {
+        delayed++;
+      }
+    }
+    return new AdminSummary(tickCount, moving, waiting, arrived, delayed, suspended);
   }
 
   /** Disruption: adds delay to every train. */
