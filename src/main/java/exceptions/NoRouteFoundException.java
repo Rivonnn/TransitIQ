@@ -3,11 +3,23 @@ package exceptions;
 import java.io.Serial;
 
 /** Thrown when no route exists between two stations. */
-public class NoRouteFoundException extends Exception {
-  // Required for Serializable - value can be arbitrary since we don't use serialization
+public class NoRouteFoundException extends TransitException {
   @Serial private static final long serialVersionUID = 1L;
 
-  public NoRouteFoundException(String message) {
-    super(message);
+  private final String sourceName;
+  private final String destinationName;
+
+  public NoRouteFoundException(String sourceName, String destinationName) {
+    super("NO_ROUTE", "No route found from " + sourceName + " to " + destinationName);
+    this.sourceName = sourceName;
+    this.destinationName = destinationName;
+  }
+
+  public String getSourceName() {
+    return sourceName;
+  }
+
+  public String getDestinationName() {
+    return destinationName;
   }
 }
