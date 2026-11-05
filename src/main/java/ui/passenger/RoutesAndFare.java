@@ -108,14 +108,14 @@ public final class RoutesAndFare extends Tab {
 
             // null means no train of this type exists, so there's no fare to calculate.
             Train train = service.findTrainByType(trainType.getValue());
-              if (train == null) {
-                  fareLabel.setText("No train of that type available.");
-              } else if (!service.trainStopsAt(train, src) || !service.trainStopsAt(train, dst)) {
-                  errorLabel.setText(trainType.getValue() + " doesn't stop at both stations.");
-              } else {
-                  double fare = service.calculateFare(route, train);
-                  fareLabel.setText("Fare: ₹" + String.format("%.2f", fare));
-              }
+            if (train == null) {
+              fareLabel.setText("No train of that type available.");
+            } else if (!service.trainStopsAt(train, src) || !service.trainStopsAt(train, dst)) {
+              errorLabel.setText(trainType.getValue() + " doesn't stop at both stations.");
+            } else {
+              double fare = service.calculateFare(route, train);
+              fareLabel.setText("Fare: ₹" + String.format("%.2f", fare));
+            }
           }
           // Thrown by service.findRoute when no path connects the two stations.
           catch (NoRouteFoundException ex) {

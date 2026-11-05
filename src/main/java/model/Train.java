@@ -101,5 +101,4 @@ public abstract class Train implements Movable {
   }
 
   public abstract boolean stopsAtStation(int stationIndex);
-
 }
