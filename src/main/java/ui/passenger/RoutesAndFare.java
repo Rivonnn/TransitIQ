@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import model.Station;
@@ -63,18 +64,23 @@ public final class RoutesAndFare extends Tab {
     trainType.getItems().addAll("Local", "Express");
     trainType.setValue("Local"); // Default
 
+    // Give all three dropdowns the same width
+    source.setPrefWidth(Double.MAX_VALUE);
+    destination.setPrefWidth(Double.MAX_VALUE);
+    trainType.setPrefWidth(Double.MAX_VALUE);
+
     // Search button
     Button search = new Button("Search");
 
-    // Label to display route
+    // routeLabel: the route. fareLabel: the fare, shown larger as the answer.
+    // errorLabel: red, for input and routing errors.
     Label routeLabel = new Label();
     routeLabel.setWrapText(true);
-
-    // fareLabel: the fare, or "no train of that type available".
-    // errorLabel: red, for input and routing errors.
     Label fareLabel = new Label();
+    fareLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #00e5ff;");
     Label errorLabel = new Label();
-    errorLabel.setStyle("-fx-text-fill: red;");
+    errorLabel.setStyle("-fx-text-fill: #ff5555;");
+    errorLabel.setWrapText(true);
 
     // Runs on every click. First clear the previous search's results.
     search.setOnAction(
@@ -109,7 +115,7 @@ public final class RoutesAndFare extends Tab {
             // null means no train of this type exists, so there's no fare to calculate.
             Train train = service.findTrainByType(trainType.getValue());
             if (train == null) {
-              fareLabel.setText("No train of that type available.");
+              errorLabel.setText("No train of that type available.");
             } else if (!service.trainStopsAt(train, src) || !service.trainStopsAt(train, dst)) {
               errorLabel.setText(trainType.getValue() + " doesn't stop at both stations.");
             } else {
@@ -123,17 +129,37 @@ public final class RoutesAndFare extends Tab {
           }
         });
 
-    // Layout: each label sits above its box; the two station boxes go side by side.
-    VBox sourceWidget = new VBox(new Label("From"), source);
-    VBox destinationWidget = new VBox(new Label("To"), destination);
-    VBox trainTypeWidget = new VBox(new Label("Train Type"), trainType);
+    // Layout: the three inputs sit in one row of equal-width columns, each with a dim label above.
+    GridPane inputs = new GridPane();
+    inputs.setHgap(16);
+    for (int i = 0; i < 3; i++) {
+      ColumnConstraints col = new ColumnConstraints();
+      col.setPercentWidth(100.0 / 3);
+      inputs.getColumnConstraints().add(col);
+    }
+    inputs.add(fieldWithLabel("From", source), 0, 0);
+    inputs.add(fieldWithLabel("To", destination), 1, 0);
+    inputs.add(fieldWithLabel("Train Type", trainType), 2, 0);
+    // Results get their own area under a divider. The minimum height stops the card from
+    // jumping in size when a result appears.
+    VBox results = new VBox(8, routeLabel, fareLabel, errorLabel);
+    results.setMinHeight(90);
 
-    HBox fromTo = new HBox(4, sourceWidget, destinationWidget);
+    // Everything sits in one bordered card, so it reads as a single panel.
+    VBox card = new VBox(16, inputs, search, new Separator(), results);
+    card.setPadding(new Insets(20));
+    card.setStyle("-fx-background-color: #1b1c3a; -fx-border-color: #00e5ff; -fx-border-width: 2;");
 
-    VBox form =
-        new VBox(10, title, fromTo, trainTypeWidget, search, routeLabel, fareLabel, errorLabel);
+    VBox form = new VBox(16, title, card);
     form.setPadding(new Insets(20));
 
     setContent(form);
+  }
+
+  /** Puts a dim label above a field. */
+  private VBox fieldWithLabel(String text, Control field) {
+    Label label = new Label(text);
+    label.setStyle("-fx-text-fill: #9aa0c8;");
+    return new VBox(4, label, field);
   }
 }
