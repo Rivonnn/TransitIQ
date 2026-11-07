@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -30,6 +32,9 @@ public class TrainDAO {
       "INSERT INTO trains (id, type, speed, base_fare, express_stops) VALUES (?, ?, ?, ?, ?)";
 
   private static final String DELETE_TRAIN = "DELETE FROM trains WHERE id = ?";
+
+  private static final String UPDATE_TRAIN =
+      "UPDATE trains SET type = ?, speed = ?, base_fare = ?, express_stops = ? WHERE id = ?";
 
   /** Postgres error code for a unique or primary key violation (e.g. a duplicate train ID). */
   private static final String DUPLICATE_KEY = "23505";
@@ -87,6 +92,37 @@ public class TrainDAO {
   }
 
   /**
+   * Loads every train as a raw row (id, type, speed, baseFare, expressStops), exactly as stored in
+   * the table. Unlike {@link #getAllTrains()}, the base fare is not adjusted for express trains, so
+   * values can be round-tripped through updates.
+   *
+   * @return all trains, ordered by ID
+   * @throws DataAccessException if the database can't be reached or the query fails
+   */
+  public List<Map<String, Object>> getAllTrainRows() throws DataAccessException {
+    List<Map<String, Object>> rows = new ArrayList<>();
+
+    try (Connection conn = DBConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(SELECT_ALL);
+        ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("id", rs.getString("id"));
+        row.put("type", rs.getString("type"));
+        row.put("speed", rs.getInt("speed"));
+        row.put("baseFare", rs.getBigDecimal("base_fare"));
+        row.put("expressStops", rs.getString("express_stops"));
+        rows.add(row);
+      }
+    } catch (SQLException e) {
+      throw new DataAccessException("Could not load trains from database", e);
+    }
+
+    return rows;
+  }
+
+  /**
    * Inserts a new train. Pass the raw base fare, not the 1.5x express fare, because the
    * ExpressTrain constructor applies the multiplier when the train is loaded back.
    *
@@ -100,13 +136,6 @@ public class TrainDAO {
   public void addTrain(String id, String type, int speed, double baseFare, Set<Integer> stops)
       throws DataAccessException {
 
-    // Stored as sorted comma-separated text, or NULL for local trains
-    String trainStops = null;
-    if ("EXPRESS".equals(type) && stops != null && !stops.isEmpty()) {
-      trainStops =
-          new TreeSet<>(stops).stream().map(String::valueOf).collect(Collectors.joining(","));
-    }
-
     try (Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(INSERT_TRAIN)) {
 
@@ -114,7 +143,7 @@ public class TrainDAO {
       ps.setString(2, type);
       ps.setInt(3, speed);
       ps.setDouble(4, baseFare);
-      ps.setString(5, trainStops);
+      ps.setString(5, stopsToText(type, stops));
       ps.executeUpdate();
 
     } catch (SQLException e) {
@@ -123,6 +152,45 @@ public class TrainDAO {
       }
       throw new DataAccessException("Could not add train to database", e);
     }
+  }
+
+  /**
+   * Replaces all fields of the train with the given ID.
+   *
+   * @param id the ID of the train to update
+   * @param type "LOCAL" or "EXPRESS"
+   * @param speed the train's speed
+   * @param baseFare the raw base fare
+   * @param stops the stop indexes, used only for express trains (ignored for local ones)
+   * @return true if a train was updated, false if no train had that ID
+   * @throws DataAccessException if the update fails
+   */
+  public boolean updateTrain(String id, String type, int speed, double baseFare, Set<Integer> stops)
+      throws DataAccessException {
+    try (Connection conn = DBConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(UPDATE_TRAIN)) {
+
+      ps.setString(1, type);
+      ps.setInt(2, speed);
+      ps.setDouble(3, baseFare);
+      ps.setString(4, stopsToText(type, stops));
+      ps.setString(5, id);
+      return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+      throw new DataAccessException("Could not update train in database", e);
+    }
+  }
+
+  /**
+   * Converts stop indexes to the stored comma-separated text, or null for local trains. Stored
+   * sorted so the column stays deterministic.
+   */
+  private static String stopsToText(String type, Set<Integer> stops) {
+    if (!"EXPRESS".equals(type) || stops == null || stops.isEmpty()) {
+      return null;
+    }
+    return new TreeSet<>(stops).stream().map(String::valueOf).collect(Collectors.joining(","));
   }
 
   /**
