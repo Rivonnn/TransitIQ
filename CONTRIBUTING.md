@@ -9,7 +9,9 @@ for formatting and linting.
 
 - **Java 25** or higher (configured in `pom.xml`)
 - **Maven 3.6+**
-- JavaFX 25 (managed automatically by Maven)
+- JavaFX 25, the PostgreSQL JDBC driver, Javalin, and Jackson (managed automatically by Maven)
+- **PostgreSQL** (optional but recommended) — trains are persisted in a `transitiq` database; the app
+  falls back to built-in seed trains if it can't connect. See `sql/schema.sql` and `sql/seed.sql`.
 
 ---
 
@@ -38,12 +40,19 @@ use [Google Java Format](https://github.com/google/google-java-format) enforced 
 Keep code strictly separated into its designated package:
 
 - `model`: Domain models (`Train`, `Station`, `Line`, `Passenger`, `Route`, `TrainStatus`). Private fields, encapsulation, no JavaFX
-  components.
+  or JDBC components.
 - `service`: Business and calculation logic (`RoutePlanner`, `FareCalculator`, `PassengerService`). No JavaFX
-  components.
+  or JDBC components.
+- `dao`: Data access objects (`TrainDAO`). All SQL/JDBC lives here — every method opens its own connection
+  via `util.DBConnection` in try-with-resources and wraps `SQLException` in `DataAccessException`. Nothing
+  outside `dao/` should touch JDBC directly.
+- `api`: The standalone Javalin REST API (`TransitApi`). A thin layer that parses/validates JSON, calls the
+  DAO, and maps errors to HTTP status codes. No SQL here. Runs via `mvn compile exec:java` on port 8080.
 - `simulation`: Discrete clock and simulation management (`SimulationClock`). Runs on its own daemon thread; all train state access is synchronized.
-- `exceptions`: Custom domain exceptions (`InvalidStationException`, `NoRouteFoundException`).
-- `util`: Helpers and seed data setup (`SeedData`, `Validator`).
+- `exceptions`: Custom domain exceptions (`InvalidStationException`, `NoRouteFoundException`, `DataAccessException`).
+- `util`: Helpers and seed data setup (`SeedData`, `Validator`, `DBConnection`). `DBConnection` is the only
+  place that knows the JDBC URL and credentials — read from `TRANSITIQ_DB_URL`, `TRANSITIQ_DB_USER`,
+  and `TRANSITIQ_DB_PASSWORD` env vars.
 - `ui`: JavaFX graphical presentation and event handlers (`ui/StartMenu.java`, `ui/passenger/`, `ui/admin/`,
   `ui/common/`). Admin tabs include Controls, EventLog, and TrainLiveStatus.
 
@@ -109,11 +118,14 @@ This compiles all sources, runs packaging, executes Spotless format validation, 
 
 ---
 
-## 5. Known TODOs
+## 5. Database & API Notes
 
-The following areas have TODO comments that need completion:
-
-- **ui/admin/Controls.java**: Button handlers for delay train, network disruption, and service toggle need implementation (validation, error handling, and clock method calls)
-- **ui/admin/EventLog.java**: The refresh() method needs to populate the ListView from clock.getEventLog(), and an auto-refresh Timeline needs to be added
-
-When addressing these TODOs, ensure thread-safety by synchronizing on the clock when accessing train state.
+- **Schema changes**: the database schema lives in `sql/schema.sql` and seed data in `sql/seed.sql`.
+  Update both when changing the `trains` table, and keep `TrainDAO`'s column names in sync.
+- **Connection config**: never hardcode credentials. `util.DBConnection` reads
+  `TRANSITIQ_DB_URL`, `TRANSITIQ_DB_USER`, and `TRANSITIQ_DB_PASSWORD` with local Postgres defaults.
+- **API changes**: `api/TransitApi` is the only Javalin entry point. Request validation happens in the
+  API layer; SQL stays in `dao/TrainDAO`. Endpoint documentation lives in `docs/api/README.md` — update it
+  when endpoints change.
+- **Admin add/remove trains**: these write to Postgres via `TrainDAO`, but the simulation loads trains
+  once at startup — UI changes only appear after an app restart.
