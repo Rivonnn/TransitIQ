@@ -32,8 +32,7 @@ public class RoutePlanner {
     int toIndex = lineOrder.indexOf(destination);
 
     if (fromIndex == -1 || toIndex == -1) {
-      throw new NoRouteFoundException(
-          "No route found from " + source.getName() + " to " + destination.getName());
+      throw new NoRouteFoundException(source.getName(), destination.getName());
     }
 
     if (fromIndex <= toIndex) {
@@ -103,7 +102,6 @@ public class RoutePlanner {
       }
     }
 
-    throw new NoRouteFoundException(
-        "No route found between " + source.getName() + " and " + destination.getName());
+    throw new NoRouteFoundException(source.getName(), destination.getName());
   }
 }

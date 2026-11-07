@@ -27,6 +27,7 @@ public class ExpressTrain extends Train {
    * @param stationIndex The index of the station to check
    * @return true if the station is in the stop set, false otherwise
    */
+  @Override
   public boolean stopsAtStation(int stationIndex) {
     return stopStations.contains(stationIndex);
   }

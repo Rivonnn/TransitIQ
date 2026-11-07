@@ -71,4 +71,9 @@ public class PassengerService {
   public double calculateFare(List<Station> route, Train train) {
     return fareCalculator.calculateFare(route, train);
   }
+
+  /** True if the train stops at the given station (uses the station's position in the list). */
+  public boolean trainStopsAt(Train train, Station station) {
+    return train.stopsAtStation(stations.indexOf(station));
+  }
 }

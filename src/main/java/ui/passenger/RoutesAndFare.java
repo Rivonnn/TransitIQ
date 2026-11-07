@@ -110,6 +110,8 @@ public final class RoutesAndFare extends Tab {
             Train train = service.findTrainByType(trainType.getValue());
             if (train == null) {
               fareLabel.setText("No train of that type available.");
+            } else if (!service.trainStopsAt(train, src) || !service.trainStopsAt(train, dst)) {
+              errorLabel.setText(trainType.getValue() + " doesn't stop at both stations.");
             } else {
               double fare = service.calculateFare(route, train);
               fareLabel.setText("Fare: ₹" + String.format("%.2f", fare));

@@ -5,7 +5,7 @@ package model;
  * ARRIVED) and core attributes like speed, fare, and position. Subclasses define specific stop
  * behavior.
  */
-public class Train {
+public abstract class Train implements Movable {
   private final String id;
   private final int speed;
   private TrainStatus status;
@@ -70,6 +70,7 @@ public class Train {
    * Transitions the train from WAITING to MOVING state. Only valid if the train is currently
    * WAITING.
    */
+  @Override
   public void depart() {
     if (status == TrainStatus.WAITING) {
       status = TrainStatus.MOVING;
@@ -80,6 +81,7 @@ public class Train {
    * Transitions the train from MOVING to ARRIVED state. Only valid if the train is currently
    * MOVING.
    */
+  @Override
   public void arrive() {
     if (status == TrainStatus.MOVING) {
       status = TrainStatus.ARRIVED;
@@ -91,9 +93,12 @@ public class Train {
    * tick. Subclasses define stop behavior via stopsAtStation() method, which determines where
    * passengers can board or alight.
    */
+  @Override
   public void updatePosition() {
     if (status == TrainStatus.MOVING) {
       currentStationIndex++;
     }
   }
+
+  public abstract boolean stopsAtStation(int stationIndex);
 }

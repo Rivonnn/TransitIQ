@@ -76,7 +76,7 @@ public class SeedData {
   public static List<Train> loadTrains() {
     List<Train> trains = new ArrayList<>();
     trains.add(new LocalTrain("L101", 60, 5.0));
-    trains.add(new ExpressTrain("E201", 80, 5.0, new HashSet<>(Arrays.asList(0, 5, 7, 8, 13))));
+    trains.add(new ExpressTrain("E201", 80, 5.0, new HashSet<>(Arrays.asList(2, 7, 9, 10, 15))));
     return trains;
   }
 }

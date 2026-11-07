@@ -10,6 +10,7 @@ public class LocalTrain extends Train {
   }
 
   /** Local trains stop at all stations. This method always returns true for local trains. */
+  @Override
   public boolean stopsAtStation(int stationIndex) {
     return true;
   }

@@ -13,4 +13,9 @@ public class FareCalculator {
     int numberOfStops = route.size() - 1;
     return numberOfStops * train.getBaseFare();
   }
+
+  // Method overloading with discounted version of calculateFare
+  public double calculateFare(List<Station> route, Train train, double discountPercent) {
+    return calculateFare(route, train) * (1 - discountPercent / 100);
+  }
 }
