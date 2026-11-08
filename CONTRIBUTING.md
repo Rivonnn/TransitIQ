@@ -17,8 +17,8 @@ for formatting and linting.
 
 ## 2. Git Workflow
 
-- **Never commit directly to `main`**: All changes must go through a Pull Request (PR).
-- **Branch naming**: Create a branch off the working branch named after your feature or task:
+- **Never commit directly to `master`**: The protected branch accepts changes only through a Pull Request (PR).
+- **Branch naming**: Create a branch from the latest `master` commit named after your feature or task:
     - `git switch -c feature/<feature-name>` or `git switch -c fix/<issue-name>`
 - **Scope discipline**:
     - Keep one logical feature or fix per branch.
@@ -27,6 +27,25 @@ for formatting and linting.
 - **Verification**: Before opening a Pull Request, ensure that:
     - The project compiles with zero compiler errors.
     - `mvn clean verify` passes successfully.
+
+### Release Workflow
+
+Release preparation also follows the protected-branch workflow:
+
+1. Make the release changes on a release or feature branch.
+2. Open and merge a Pull Request into `master` after the required checks pass.
+3. Pull the merged `master` branch locally and create a version tag on that commit:
+   ```powershell
+   git switch master
+   git pull origin master
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+4. Java CI runs automatically for the Pull Request and the merge push to `master`. After those
+   checks pass, push the version tag; the release workflow builds the Windows MSI and publishes it
+   to the GitHub release.
+
+Do not push release commits directly to `master`, and do not tag an unmerged feature branch.
 
 ---
 
