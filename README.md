@@ -136,6 +136,10 @@ trains (L101, E201) and admin add/remove-train actions will fail.
    | `TRANSITIQ_DB_USER`      | `postgres`                           |
    | `TRANSITIQ_DB_PASSWORD`  | *(empty)*                            |
 
+   Use `env.example` as a template when setting these variables in your shell or local
+   environment configuration. Replace any values as needed; the application does not load
+   `.env` files automatically. Do not commit credentials.
+
 ## Running the Application
 
 ### Option 1: Using Maven

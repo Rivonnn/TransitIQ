@@ -40,3 +40,6 @@ dependency-reduced-pom.xml
 ### Build Artifacts ###
 installers/
 *.msi
+
+### Local Environment ###
+.env

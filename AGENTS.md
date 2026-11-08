@@ -143,10 +143,22 @@ When preparing for a GitHub release:
    - Test on different screen sizes/resolutions
 
 5. **GitHub Release**
-   - Create a new release on GitHub
-   - Attach the JAR file (and MSI if built)
-   - Write release notes describing what's included
-   - Link to the relevant Git tag
+   - Merge the release changes into protected `master` through a Pull Request
+   - Create and push a version tag on the merged `master` commit (for example, `v1.0.0`)
+   - Java CI runs on the Pull Request and merge push to `master`; after those checks pass, push the version tag to trigger `.github/workflows/release.yml`
+   - The release workflow verifies the tag points to `master`, then builds the shaded JAR, creates the MSI with `jpackage`, and attaches it to the GitHub release
+   - Write or review release notes describing what's included
+
+## Environment Configuration
+
+The optional PostgreSQL settings are documented in `env.example`:
+
+- `TRANSITIQ_DB_URL`
+- `TRANSITIQ_DB_USER`
+- `TRANSITIQ_DB_PASSWORD`
+
+Copy the example values into the local environment when overriding the defaults. Never commit
+database credentials.
 
 ## Code Style Rules
 
@@ -203,9 +215,10 @@ Treat this as a shared codebase other people also work on. Before writing code:
 
 ## Git Workflow
 
-- Never commit directly to `main`. All changes go through a Pull Request.
+- Never commit directly to `master`. The protected branch accepts changes only through a Pull Request.
 - Create a new branch for each feature, named after the feature (e.g. `route-planner`, `fare-calculator`).
 - Keep one feature per branch — don't mix unrelated changes together.
+- Create release tags only after the release changes have been merged into `master`.
 - Before a PR is ready: the code compiles, existing features still work, only relevant files were changed, and the scope rules above were followed.
 
 ## The One Rule That Matters Most
