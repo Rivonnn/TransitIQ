@@ -1,0 +1,75 @@
+name: Build and Release MSI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build Windows MSI and release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5.1.0
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Verify release tag is on master
+        shell: pwsh
+        run: |
+          git merge-base --is-ancestor HEAD origin/master
+          if ($LASTEXITCODE -ne 0) {
+            throw "Release tags must point to a commit on master."
+          }
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Build shaded JAR
+        run: mvn --batch-mode --no-transfer-progress clean package
+
+      - name: Create MSI installer
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $releaseVersion = $env:RELEASE_TAG.TrimStart("v")
+
+          New-Item -ItemType Directory -Force -Path installers | Out-Null
+          jpackage `
+            --name TransitIQ `
+            --type msi `
+            --input target `
+            --main-jar TransitIQ-1.0-SNAPSHOT.jar `
+            --main-class Launcher `
+            --dest installers `
+            --icon src/main/resources/TransitIQ.ico `
+            --app-version $releaseVersion `
+            --vendor "TransitIQ Team" `
+            --description "Transit Information System"
+
+          "RELEASE_VERSION=$releaseVersion" >> $env:GITHUB_ENV
+
+      - name: Create GitHub release and upload MSI
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $installer = Get-ChildItem installers -Filter *.msi | Select-Object -First 1
+          if ($null -eq $installer) {
+            throw "jpackage did not create an MSI installer."
+          }
+
+          gh release create $env:RELEASE_TAG $installer.FullName `
+            --title "TransitIQ $env:RELEASE_VERSION" `
+            --generate-notes
