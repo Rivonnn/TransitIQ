@@ -33,6 +33,18 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.14</version>
         </dependency>
+        <!-- Javalin: lightweight REST API -->
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>7.2.4</version>
+        </dependency>
+        <!-- JSON (de)serialization for the API; Javalin uses Jackson by default -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.22.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -89,6 +101,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Run the REST API: mvn compile exec:java -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>api.TransitApi</mainClass>
+                </configuration>
             </plugin>
             <!-- JavaFX Maven Plugin for running JavaFX applications -->
             <plugin>

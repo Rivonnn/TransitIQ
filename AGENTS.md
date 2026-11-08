@@ -4,29 +4,31 @@ This file tells an AI agent how to work on this codebase. Follow it exactly. If 
 
 ## What This Project Is
 
-TransitIQ is a Java OOP mini-project simulating a transit info system (inspired by M-Indicator/Chalo). It uses **JavaFX** for a retro-styled graphical interface, with no database or network calls.
+TransitIQ is a Java OOP mini-project simulating a transit info system (inspired by M-Indicator/Chalo). It uses **JavaFX** for a retro-styled graphical interface, **PostgreSQL via JDBC** for train persistence, and a standalone **Javalin REST API** for train CRUD.
 
-## Current Phase: Admin Implementation & Release Preparation
+## Current Phase: Database, API & Release Preparation
 
 The project is now focused on three main areas:
-1. **Completing the admin interface** - Full control over the transit system (Controls and EventLog tabs have TODOs to complete)
-2. **Polishing the CSS/styling** - Ensure consistent retro neon aesthetic (CSS is complete)
+1. **Database persistence** - Trains are stored in PostgreSQL via `dao/TrainDAO.java` and `util/DBConnection.java`. The app falls back to built-in seed trains if the database is unreachable.
+2. **REST API** - `api/TransitApi.java` exposes CRUD on the `trains` table via Javalin on port 8080. It runs standalone (`mvn compile exec:java`), not with the JavaFX app.
 3. **Preparing for GitHub release** - Packaging, documentation, and distribution
 
 ## Current Scope — Do Not Exceed It
 
 **Allowed:**
 - JavaFX GUI components and styling
-- In-memory data using `List` / `Map`
+- PostgreSQL persistence for trains only, via JDBC (`dao/`, `util/DBConnection.java`, `sql/`)
+- The standalone Javalin REST API in `api/` (trains CRUD only)
+- In-memory data using `List` / `Map` for everything that isn't trains
 - Hardcoded seed data written directly in code
 - A simple tick counter to simulate time passing
 - Maven build configuration and packaging
 - MSI installer creation via jpackage or WiX
 
 **Not allowed, until the team explicitly says otherwise:**
-- Databases or persistence (e.g. MySQL, JDBC)
-- REST APIs or any network calls
-- Web-based interfaces or server components
+- Databases or persistence for anything other than trains
+- REST endpoints beyond the existing `/api/trains` CRUD
+- Web-based interfaces or server components beyond the standalone Javalin API
 - Real multithreading or synchronization beyond the existing SimulationClock
 - Adding new train lines or stations not already in SeedData (unless refactoring the map)
 
@@ -36,15 +38,17 @@ If a task seems to require one of these, stop and flag it instead of implementin
 
 Place new code based on what it *does*, not what feature it for. Each folder has one job:
 
-- **model** — Data classes that represent real-world things in the system (a train, a station, a passenger, etc.). These classes hold data and basic behavior about themselves. They must not interact with JavaFX components directly.
-- **service** — Logic that operates on model classes to answer a question or perform a calculation (e.g. finding a route, calculating a fare). No JavaFX code here either.
+- **model** — Data classes that represent real-world things in the system (a train, a station, a passenger, etc.). These classes hold data and basic behavior about themselves. They must not interact with JavaFX components or JDBC directly.
+- **service** — Logic that operates on model classes to answer a question or perform a calculation (e.g. finding a route, calculating a fare). No JavaFX or JDBC code here either.
+- **dao** — Data access objects. All SQL/JDBC for a table lives in one DAO (`TrainDAO` for `trains`). Methods open their own connection via `DBConnection.getConnection()` inside try-with-resources and wrap `SQLException` in `DataAccessException`.
+- **api** — The standalone Javalin REST API (`TransitApi`). Thin layer: parse/validate JSON, call the DAO, map errors to HTTP status codes. Never put SQL here.
 - **simulation** — Code that advances the system over time (the tick counter and whatever reacts to each tick). The SimulationClock runs on its own daemon thread and includes event logging with automatic log rotation (max 200 entries). It provides synchronized admin operations: delayTrain, delayAllTrains, setSuspended, isSuspended, and read-only accessors: getEventLog, getStatusReport, getTickCount.
-- **exception** — Custom error types for expected failure cases (e.g. an invalid station name, no route found).
-- **util** — Shared helper code, such as seed data setup or input validation, that doesn't belong to one specific class.
+- **exceptions** — Custom error types for expected failure cases (e.g. an invalid station name, no route found, database failures via `DataAccessException`).
+- **util** — Shared helper code, such as seed data setup (`SeedData`), input validation (`Validator`), or infrastructure like `DBConnection` (the single place that knows the JDBC URL and credentials).
 - **ui** — All JavaFX UI code. Organized by screen:
   - `ui/StartMenu.java` — The main entry screen
-  - `ui/Passenger/` — Passenger-facing screens (PassengerScreen, RoutesAndFare, TrainMap)
-  - `ui/Admin/` — Admin-facing screens (AdminMenu, AdminScreen, Controls, EventLog)
+  - `ui/passenger/` — Passenger-facing screens (PassengerScreen, RoutesAndFare, TrainMap)
+  - `ui/admin/` — Admin-facing screens (AdminScreen, Controls, EventLog)
   - `ui/common/` — Shared UI components (TrainLiveStatus)
 - **src/main/resources** — Static assets (CSS, fonts, images)
 
@@ -52,20 +56,16 @@ Before creating a new file, check if an existing file already does this job. Add
 
 ## Admin Implementation Priorities
 
-The admin interface is structured but has TODOs remaining. Focus on these areas in order:
+The admin interface is implemented. Current state:
 
-1. **Controls Tab** (`ui/Admin/Controls.java`) - **Partially complete with TODOs**
-   - Currently: UI is built, but button handlers have TODO comments
-   - Complete the TODO for delay train validation (parse minutes, reject negative, call clock.delayTrain)
-   - Complete the TODO for network disruption (validate minutes, call clock.delayAllTrains)
-   - Complete the TODO for service toggle (read from clock.isSuspended, call clock.setSuspended)
-   - Add visual feedback when actions are applied (result labels are present but not used)
+1. **Controls Tab** (`ui/admin/Controls.java`) - **Complete**
+   - Delay train, clear delay, network disruption (custom + 5/10-min presets), service toggle — all wired to `SimulationClock`
+   - Add/remove train sections write to Postgres via `TrainDAO`; changes apply on next app start since trains load once at startup
+   - Network overview summary refreshes every second via Timeline
 
-2. **Event Log Tab** (`ui/Admin/EventLog.java`) - **Partially complete with TODOs**
-   - Currently: UI is built with ListView, but refresh() method has TODO comments
-   - Complete the TODO for refresh() to populate the list from clock.getEventLog()
-   - Complete the TODO for auto-refresh via Timeline (every second, same pattern as TrainLiveStatus)
-   - Future enhancements: filtering options (by event type, time range), export functionality
+2. **Event Log Tab** (`ui/admin/EventLog.java`) - **Complete**
+   - Populates from `clock.getEventLog()`, auto-refreshes via Timeline
+   - Supports event-type and text filters, plus CSV export of filtered entries
 
 3. **Train Status Tab** (`ui/common/TrainLiveStatus.java`) - **Complete**
    - Table updates in real-time every second via Timeline
@@ -73,10 +73,8 @@ The admin interface is structured but has TODOs remaining. Focus on these areas 
    - Displays train ID, type, status, current station, and delay
    - Future enhancements: color coding for train status, sorting capabilities
 
-4. **Additional Admin Features** (if requested)
-   - Add/remove trains dynamically
-   - Add/remove stations dynamically
-   - Edit train schedules or routes
+4. **Possible future work** (only if requested)
+   - Extend the API/DAO beyond the `trains` table (stations, lines) — requires schema changes in `sql/`
 
 ## CSS & Styling Guidelines
 

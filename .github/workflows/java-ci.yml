@@ -4,8 +4,15 @@ name: Format, Lint and Build
 on:
   pull_request:
     branches: [ master ]
+    # Ignore files that are never touched by Spotless (Java only) or SpotBugs
+    paths-ignore:
+      - "**.md"
+      - LICENSE
   push:
     branches: [ master ]
+    paths-ignore:
+      - "**.md"
+      - LICENSE
 
 # Least privilege: this workflow only needs to read the repo
 permissions:
@@ -23,11 +30,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5.1.0
 
       # Must match maven.compiler.release in pom.xml; caches ~/.m2 for faster runs
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5.7.0
         with:
           distribution: temurin
           java-version: "25"
