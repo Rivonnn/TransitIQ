@@ -42,7 +42,7 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          $releaseVersion = $env:RELEASE_TAG.TrimStart("v")
+          $releaseVersion = $env:RELEASE_TAG.TrimStart("v").Split("-")[0]
 
           New-Item -ItemType Directory -Force -Path installers | Out-Null
           jpackage `
